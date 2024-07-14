@@ -15,6 +15,24 @@ int main(int argc, char *argv[])
 	CFSHeader *cfs_header = read_cfs_header(cfs_file);
 	print_cfs_header(cfs_header);
 
+	const int CHANNEL_COUNT = cfs_header->channel_count;
+
+	ChannelHeader **channel_headers = malloc(sizeof(ChannelHeader *) * CHANNEL_COUNT);
+	if (channel_headers == NULL) {
+		return 1;
+	}
+	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+	{
+		ChannelHeader *channel_header = read_channel_header(cfs_file);
+		print_channel_header(channel_header);
+		channel_headers[current_channel] = channel_header;
+	}
+
+	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+	{
+		free(channel_headers[current_channel]);
+	}
+	free(channel_headers);
 	free(cfs_header);
 	fclose(cfs_file);
 }
@@ -46,6 +64,21 @@ CFSHeader *read_cfs_header(FILE *file)
 	return cfs_header;
 }
 
+ChannelHeader *read_channel_header(FILE *file)
+{
+	ChannelHeader *channel_header = malloc(sizeof(ChannelHeader));
+
+	fread(&channel_header->channel_name, sizeof(channel_header->channel_name), 1, file);
+	fread(&channel_header->y_axis_units, sizeof(channel_header->y_axis_units), 1, file);
+	fread(&channel_header->x_axis_units, sizeof(channel_header->x_axis_units), 1, file);
+	fread(&channel_header->data_type, sizeof(channel_header->data_type), 1, file);
+	fread(&channel_header->data_kind, sizeof(channel_header->data_kind), 1, file);
+	fread(&channel_header->space_between_elements_bytes, sizeof(channel_header->space_between_elements_bytes), 1, file);
+	fread(&channel_header->next_channel, sizeof(channel_header->next_channel), 1, file);
+
+	return channel_header;
+}
+
 // Print out all info in the CFS file header.
 void print_cfs_header(CFSHeader *cfs_header)
 {
@@ -65,4 +98,15 @@ void print_cfs_header(CFSHeader *cfs_header)
 	printf("Disk Block Size Rounding: %d\n", cfs_header->disk_block_size_rounding);
 	printf("File Comment: %s\n", cfs_header->file_comment);
 	printf("Pointer Table Offset: 0x%X\n", cfs_header->pointer_table_offset);
+}
+
+void print_channel_header(ChannelHeader *channel_header)
+{
+		printf("Channel Name: '%s'\n", channel_header->channel_name);
+		printf("Y Axis Units: '%s'\n", channel_header->y_axis_units);
+		printf("X Axis Units: '%s'\n", channel_header->x_axis_units);
+		printf("Data Type: %u\n", channel_header->data_type);
+		printf("Data Kind: %u\n", channel_header->data_kind);
+		printf("Space Between Elements: %i Bytes\n", channel_header->space_between_elements_bytes);
+		printf("Next Channel Number: %i\n", channel_header->next_channel);
 }

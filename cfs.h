@@ -6,6 +6,25 @@ typedef int32_t cfs_long;
 typedef uint8_t BYTE;
 typedef uint16_t cfs_word;
 
+typedef enum
+{
+	INT1 = 0,
+	WRD1 = 1,
+	INT2 = 2,
+	WRD2 = 3,
+	INT4 = 4,
+	RL4 = 5,
+	RL8 = 6,
+	LSTR = 7,
+} CFSDataType;
+
+typedef enum
+{
+	EQUALSPACED = 0,
+	MATRIX = 1,
+	SUBSIDIARY = 2,
+} CFSDataKind;
+
 typedef struct
 {
 	char file_id[8];
@@ -26,6 +45,19 @@ typedef struct
 	BYTE reserved_space[40];	
 } CFSHeader;
 
+typedef struct
+{
+	char channel_name[22];
+	char y_axis_units[10];
+	char x_axis_units[10];
+	BYTE data_type;
+	BYTE data_kind;
+	cfs_short space_between_elements_bytes;
+	cfs_short next_channel;
+} ChannelHeader;
+
 void print_cfs_header(CFSHeader *cfs_header);
+void print_channel_header(ChannelHeader *channel_header);
 CFSHeader *read_cfs_header(FILE *file);
+ChannelHeader *read_channel_header(FILE *file);
 
