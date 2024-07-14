@@ -58,6 +58,6 @@ typedef struct
 
 void print_cfs_header(CFSHeader *cfs_header);
 void print_channel_header(ChannelHeader *channel_header);
-CFSHeader *read_cfs_header(FILE *file);
-ChannelHeader *read_channel_header(FILE *file);
+void read_cfs_header(FILE *file, CFSHeader *cfs_header);
+void read_channel_header(FILE *file, ChannelHeader *channel_header);
 

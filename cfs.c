@@ -12,18 +12,21 @@ int main(int argc, char *argv[])
 	}
 	char *file_name = argv[1];
 	FILE *cfs_file = fopen(file_name, "r");
-	CFSHeader *cfs_header = read_cfs_header(cfs_file);
+	CFSHeader *cfs_header = malloc(sizeof(CFSHeader));
+	read_cfs_header(cfs_file, cfs_header);
 	print_cfs_header(cfs_header);
 
 	const int CHANNEL_COUNT = cfs_header->channel_count;
 
 	ChannelHeader **channel_headers = malloc(sizeof(ChannelHeader *) * CHANNEL_COUNT);
-	if (channel_headers == NULL) {
+	if (channel_headers == NULL)
+	{
 		return 1;
 	}
 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 	{
-		ChannelHeader *channel_header = read_channel_header(cfs_file);
+		ChannelHeader *channel_header = malloc(sizeof(ChannelHeader));
+		read_channel_header(cfs_file, channel_header);
 		print_channel_header(channel_header);
 		channel_headers[current_channel] = channel_header;
 	}
@@ -38,10 +41,8 @@ int main(int argc, char *argv[])
 }
 
 // Read contents of a CFS file header into a struct.
-CFSHeader *read_cfs_header(FILE *file)
+void read_cfs_header(FILE *file, CFSHeader *cfs_header)
 {
-	CFSHeader *cfs_header = malloc(sizeof(CFSHeader));
-
 	// Read contents of file header into the struct one by one.
 	// This is safer and more portable than reading the header directly into a packed struct.
 	fread(&cfs_header->file_id, sizeof(cfs_header->file_id), 1, file);
@@ -60,14 +61,10 @@ CFSHeader *read_cfs_header(FILE *file)
 	fread(&cfs_header->file_comment, sizeof(cfs_header->file_comment), 1, file);
 	fread(&cfs_header->pointer_table_offset, sizeof(cfs_header->pointer_table_offset), 1, file);
 	fread(&cfs_header->reserved_space, sizeof(cfs_header->reserved_space), 1, file);
-
-	return cfs_header;
 }
 
-ChannelHeader *read_channel_header(FILE *file)
+void read_channel_header(FILE *file, ChannelHeader *channel_header)
 {
-	ChannelHeader *channel_header = malloc(sizeof(ChannelHeader));
-
 	fread(&channel_header->channel_name, sizeof(channel_header->channel_name), 1, file);
 	fread(&channel_header->y_axis_units, sizeof(channel_header->y_axis_units), 1, file);
 	fread(&channel_header->x_axis_units, sizeof(channel_header->x_axis_units), 1, file);
@@ -75,8 +72,6 @@ ChannelHeader *read_channel_header(FILE *file)
 	fread(&channel_header->data_kind, sizeof(channel_header->data_kind), 1, file);
 	fread(&channel_header->space_between_elements_bytes, sizeof(channel_header->space_between_elements_bytes), 1, file);
 	fread(&channel_header->next_channel, sizeof(channel_header->next_channel), 1, file);
-
-	return channel_header;
 }
 
 // Print out all info in the CFS file header.
