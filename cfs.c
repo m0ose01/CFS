@@ -13,6 +13,10 @@ int main(int argc, char *argv[])
 	char *file_name = argv[1];
 	FILE *cfs_file = fopen(file_name, "r");
 	CFSGeneralHeader *general_header = malloc(sizeof(CFSGeneralHeader));
+	if (general_header == NULL)
+	{
+		return 1;
+	}
 	read_general_header(cfs_file, general_header);
 	print_general_header(general_header);
 
@@ -26,6 +30,10 @@ int main(int argc, char *argv[])
 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 	{
 		CFSChannelHeader *channel_header = malloc(sizeof(CFSChannelHeader));
+		if (channel_header == NULL)
+		{
+			return 1;
+		}
 		read_channel_header(cfs_file, channel_header);
 		print_channel_header(channel_header);
 		channel_headers[current_channel] = channel_header;
