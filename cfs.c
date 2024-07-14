@@ -39,11 +39,56 @@ int main(int argc, char *argv[])
 		channel_headers[current_channel] = channel_header;
 	}
 
+	// We add one because there is a 'system file var to calculate the size of var n-1?'
+	const int FILE_VARIABLE_COUNT = general_header->file_variable_count + 1;
+
+	CFSVariableHeader **file_variable_headers = malloc(sizeof(CFSVariableHeader *) * FILE_VARIABLE_COUNT);
+	for (int current_file_variable_header = 0; current_file_variable_header < FILE_VARIABLE_COUNT; current_file_variable_header++)
+	{
+		CFSVariableHeader *file_variable_header = malloc(sizeof(CFSVariableHeader));
+		if (file_variable_header == NULL)
+		{
+			return 1;
+		}
+		read_variable_header(cfs_file, file_variable_header);
+		print_variable_header(file_variable_header);
+		file_variable_headers[current_file_variable_header] = file_variable_header;
+	}
+
+	const int DATA_SECTION_VARIABLE_COUNT = general_header->data_section_variable_count + 1;
+
+	CFSVariableHeader **data_section_variable_headers = malloc(sizeof(CFSVariableHeader *) * DATA_SECTION_VARIABLE_COUNT);
+
+	for (int current_data_section_variable_header = 0; current_data_section_variable_header < DATA_SECTION_VARIABLE_COUNT; current_data_section_variable_header++)
+	{
+		CFSVariableHeader *data_section_variable_header = malloc(sizeof(CFSVariableHeader));
+		if (data_section_variable_header == NULL)
+		{
+			return 1;
+		}
+		read_variable_header(cfs_file, data_section_variable_header);
+		print_variable_header(data_section_variable_header);
+		data_section_variable_headers[current_data_section_variable_header] = data_section_variable_header;
+	}
+
 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 	{
 		free(channel_headers[current_channel]);
 	}
 	free(channel_headers);
+
+	for (int current_file_variable_header = 0; current_file_variable_header < FILE_VARIABLE_COUNT; current_file_variable_header++)
+	{
+		free(file_variable_headers[current_file_variable_header]);
+	}
+	free(file_variable_headers);
+
+	for (int current_data_section_variable_header; current_data_section_variable_header < DATA_SECTION_VARIABLE_COUNT; current_data_section_variable_header++)
+	{
+		free(data_section_variable_headers[current_data_section_variable_header]);
+	}
+	free(data_section_variable_headers);
+
 	free(general_header);
 	fclose(cfs_file);
 }
@@ -83,6 +128,14 @@ void read_channel_header(FILE *file, CFSChannelHeader *header)
 	fread(&header->next_channel, sizeof(header->next_channel), 1, file);
 }
 
+void read_variable_header(FILE *file, CFSVariableHeader *header)
+{
+	fread(&header->description, sizeof(header->description), 1, file);
+	fread(&header->type, sizeof(header->type), 1, file);
+	fread(&header->units, sizeof(header->units), 1, file);
+	fread(&header->offset, sizeof(header->offset), 1, file);
+}
+
 // Print out all info in the CFS file header.
 void print_general_header(CFSGeneralHeader *header)
 {
@@ -113,4 +166,13 @@ void print_channel_header(CFSChannelHeader *header)
 		printf("Data Kind: %u\n", header->data_kind);
 		printf("Space Between Elements: %i Bytes\n", header->space_between_elements_bytes);
 		printf("Next Channel Number: %i\n", header->next_channel);
+}
+
+// Print info for the header of a file variable header or data section variable header.
+void print_variable_header(CFSVariableHeader *header)
+{
+	printf("Variable Description: '%s'\n", header->description);
+	printf("Variable Type: %i\n", header->type);
+	printf("Variable Units: %s\n", header->units);
+	printf("Variable Offset: 0x%X\n", header->offset);
 }

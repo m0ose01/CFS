@@ -56,8 +56,19 @@ typedef struct
 	cfs_short next_channel;
 } CFSChannelHeader;
 
+// Header for EITHER file variables or data section variables.
+typedef struct
+{
+	char description[22];
+	cfs_word type;
+	char units[10];
+	cfs_short offset; // Offset from the start of the data section variable area, or the file variable area.
+} CFSVariableHeader;
+
 void print_general_header(CFSGeneralHeader *cfs_header);
 void print_channel_header(CFSChannelHeader *channel_header);
+void print_variable_header(CFSVariableHeader *header);
 void read_general_header(FILE *file, CFSGeneralHeader *cfs_header);
 void read_channel_header(FILE *file, CFSChannelHeader *channel_header);
+void read_variable_header(FILE *file, CFSVariableHeader *header);
 
