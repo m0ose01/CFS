@@ -71,6 +71,7 @@ void read_general_header(FILE *file, CFSGeneralHeader *header)
 	fread(&header->reserved_space, sizeof(header->reserved_space), 1, file);
 }
 
+// Read contents of a CFS file channel header into a struct.
 void read_channel_header(FILE *file, CFSChannelHeader *header)
 {
 	fread(&header->channel_name, sizeof(header->channel_name), 1, file);
@@ -102,6 +103,7 @@ void print_general_header(CFSGeneralHeader *header)
 	printf("Pointer Table Offset: 0x%X\n", header->pointer_table_offset);
 }
 
+// Print out all info in a CFS file channel header.
 void print_channel_header(CFSChannelHeader *header)
 {
 		printf("Channel Name: '%s'\n", header->channel_name);
