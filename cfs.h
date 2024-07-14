@@ -43,7 +43,7 @@ typedef struct
 	char file_comment[74];
 	cfs_long pointer_table_offset;
 	BYTE reserved_space[40];	
-} CFSHeader;
+} CFSGeneralHeader;
 
 typedef struct
 {
@@ -54,10 +54,10 @@ typedef struct
 	BYTE data_kind;
 	cfs_short space_between_elements_bytes;
 	cfs_short next_channel;
-} ChannelHeader;
+} CFSChannelHeader;
 
-void print_cfs_header(CFSHeader *cfs_header);
-void print_channel_header(ChannelHeader *channel_header);
-void read_cfs_header(FILE *file, CFSHeader *cfs_header);
-void read_channel_header(FILE *file, ChannelHeader *channel_header);
+void print_general_header(CFSGeneralHeader *cfs_header);
+void print_channel_header(CFSChannelHeader *channel_header);
+void read_general_header(FILE *file, CFSGeneralHeader *cfs_header);
+void read_channel_header(FILE *file, CFSChannelHeader *channel_header);
 
