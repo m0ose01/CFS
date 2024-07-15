@@ -159,13 +159,13 @@ void print_general_header(CFSGeneralHeader *header)
 // Print out all info in a CFS file channel header.
 void print_channel_header(CFSChannelHeader *header)
 {
-		printf("Channel Name: '%s'\n", header->channel_name);
-		printf("Y Axis Units: '%s'\n", header->y_axis_units);
-		printf("X Axis Units: '%s'\n", header->x_axis_units);
-		printf("Data Type: %u\n", header->data_type);
-		printf("Data Kind: %u\n", header->data_kind);
-		printf("Space Between Elements: %i Bytes\n", header->space_between_elements_bytes);
-		printf("Next Channel Number: %i\n", header->next_channel);
+	printf("Channel Name: '%s'\n", header->channel_name);
+	printf("Y Axis Units: '%s'\n", header->y_axis_units);
+	printf("X Axis Units: '%s'\n", header->x_axis_units);
+	printf("Data Type: %u\n", header->data_type);
+	printf("Data Kind: %u\n", header->data_kind);
+	printf("Space Between Elements: %i Bytes\n", header->space_between_elements_bytes);
+	printf("Next Channel Number: %i\n", header->next_channel);
 }
 
 // Print info for the header of a file variable header or data section variable header.
