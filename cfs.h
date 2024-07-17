@@ -68,7 +68,10 @@ typedef struct
 void print_general_header(CFSGeneralHeader *cfs_header);
 void print_channel_header(CFSChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
+void print_variable(void *variable, CFSDataType variable_type);
 void read_general_header(FILE *file, CFSGeneralHeader *cfs_header);
 void read_channel_header(FILE *file, CFSChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
+void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest);
+int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
 

@@ -49,6 +49,18 @@ int main(int argc, char *argv[])
 		print_variable_header(&data_section_variable_headers[current_data_section_variable_header]);
 	}
 
+	const int FILE_VARIABLE_AREA_OFFSET = ftell(cfs_file);
+
+	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
+	{
+		CFSVariableHeader current_file_variable_header = file_variable_headers[current_file_variable];
+		uint8_t file_variable_size = get_variable_size_bytes(cfs_file, FILE_VARIABLE_AREA_OFFSET, &current_file_variable_header);
+		void *file_variable = malloc(file_variable_size);
+		read_variable(cfs_file, FILE_VARIABLE_AREA_OFFSET + current_file_variable_header.offset, file_variable_size, file_variable);
+		print_variable(file_variable, current_file_variable_header.type);
+		free(file_variable);
+	}
+
 	free(channel_headers);
 
 	free(file_variable_headers);
@@ -140,4 +152,86 @@ void print_variable_header(CFSVariableHeader *header)
 	printf("Variable Type: %i\n", header->type);
 	printf("Variable Units: %s\n", header->units);
 	printf("Variable Offset: 0x%X\n", header->offset);
+}
+
+void print_variable(void *variable, CFSDataType variable_type)
+{
+	switch (variable_type)
+	{
+		case INT1:
+			printf("Type: INT1\n");
+			printf("File Variable: %i\n", *(uint8_t *)variable);
+		break;
+		case WRD1:
+			printf("Type: WRD1\n");
+			printf("File Variable: %u\n", *(int8_t *)variable);
+		break;
+		case INT2:
+			printf("Type: INT2\n");
+			printf("File Variable: %i\n", *(int16_t *)variable);
+		break;
+		case WRD2:
+			printf("Type: WRD2\n");
+			printf("File Variable: %u\n", *(uint16_t *)variable);
+		break;
+		case INT4:
+			printf("Type: INT4\n");
+			printf("File Variable: %i\n", *(int32_t *)variable);
+		break;
+		case RL4:
+			printf("Type: RL4\n");
+			printf("File Variable: %f\n", *(float *)variable);
+		break;
+		case RL8:
+			printf("Type: RL8\n");
+			printf("File Variable: %f\n", *(float *)variable);
+		break;
+		case LSTR:
+			printf("Type: LSTR\n");
+			printf("File Variable: %c\n", *(char *)variable);
+		break;
+	}
+
+}
+
+// Read a file/data section variable into the variable pointed to by /variable'. The user must ensure
+// that sufficient space is allocated for the variable.
+void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest)
+{
+	fseek(cfs_file, offset, SEEK_SET);
+	int x = fread(dest, variable_size_bytes, 1, cfs_file);
+}
+
+int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header)
+{
+	fseek(cfs_file, variable_area_offset, SEEK_SET);
+	fseek(cfs_file, variable_header->offset, SEEK_CUR);
+	long int file_variable_start = ftell(cfs_file);
+
+	CFSDataType variable_type = variable_header->type;
+	uint8_t variable_size = 0;
+	switch (variable_type)
+	{
+		case INT1:
+		case WRD1:
+			variable_size = sizeof(int8_t);
+			break;
+		case INT2:
+		case WRD2:
+			variable_size = sizeof(int16_t);
+			break;
+		case INT4:
+		case RL4:
+			variable_size = sizeof(float);
+			break;
+		case RL8:
+			variable_size = sizeof(double);
+			break;
+		case LSTR:
+			// In the case of the 'LSTR' data type, the size of the string
+			// is stored in the first byte of the variable.
+			fread(&variable_size, sizeof(uint8_t), 1, cfs_file);
+			break;
+	}
+	return variable_size;
 }
