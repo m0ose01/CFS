@@ -65,13 +65,25 @@ typedef struct
 	cfs_short offset; // Offset from the start of the data section variable area, or the file variable area.
 } CFSVariableHeader;
 
+typedef struct
+{
+	cfs_long previous_data_section_offset;
+	cfs_long channel_data_offset;
+	cfs_long channel_data_size;	
+	cfs_word flags;
+	BYTE reserved_space[16];
+
+} CFSDataSectionHeader;
+
 void print_general_header(CFSGeneralHeader *cfs_header);
 void print_channel_header(CFSChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
 void print_variable(void *variable, CFSDataType variable_type);
+void print_data_section_header(CFSDataSectionHeader *header);
 void read_general_header(FILE *file, CFSGeneralHeader *cfs_header);
 void read_channel_header(FILE *file, CFSChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
 void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest);
+void read_data_section_header(FILE *cfs_file, CFSDataSectionHeader *header);
 int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
 

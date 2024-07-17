@@ -61,11 +61,36 @@ int main(int argc, char *argv[])
 		free(file_variable);
 	}
 
+	const long int POINTER_TABLE_OFFSET = general_header.pointer_table_offset;
+	const int DATA_SECTION_COUNT = general_header.data_section_count;
+
+	int32_t *pointer_table = malloc(sizeof(int32_t) * DATA_SECTION_COUNT);
+
+	fseek(cfs_file, POINTER_TABLE_OFFSET, SEEK_SET);
+	fread(pointer_table, sizeof(int32_t), DATA_SECTION_COUNT, cfs_file);
+
+	CFSDataSectionHeader *data_section_headers = malloc(sizeof(CFSDataSectionHeader) * DATA_SECTION_COUNT);
+	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
+	{
+		printf("%i\n", pointer_table[current_data_section_header]);
+		fseek(cfs_file, pointer_table[current_data_section_header], SEEK_SET);
+		read_data_section_header(cfs_file, &data_section_headers[current_data_section_header]);
+	}
+
+	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
+	{
+		print_data_section_header(&data_section_headers[current_data_section_header]);
+	}
+
 	free(channel_headers);
 
 	free(file_variable_headers);
 
 	free(data_section_variable_headers);
+
+	free(pointer_table);
+
+	free(data_section_headers);
 
 	fclose(cfs_file);
 }
@@ -145,6 +170,15 @@ void print_channel_header(CFSChannelHeader *header)
 	printf("Next Channel Number: %i\n", header->next_channel);
 }
 
+void read_data_section_header(FILE *cfs_file, CFSDataSectionHeader *header)
+{
+	fread(&header->previous_data_section_offset, sizeof(header->previous_data_section_offset), 1, cfs_file);
+	fread(&header->channel_data_offset, sizeof(header->channel_data_offset), 1, cfs_file);
+	fread(&header->channel_data_size, sizeof(header->channel_data_size), 1, cfs_file);
+	fread(&header->flags, sizeof(header->flags), 1, cfs_file);
+	fread(&header->reserved_space, sizeof(header->reserved_space), 1, cfs_file);
+}
+
 // Print info for the header of a file variable header or data section variable header.
 void print_variable_header(CFSVariableHeader *header)
 {
@@ -192,6 +226,14 @@ void print_variable(void *variable, CFSDataType variable_type)
 		break;
 	}
 
+}
+
+void print_data_section_header(CFSDataSectionHeader *header)
+{
+	printf("Previous Data Section Offset: 0x%X\n", header->previous_data_section_offset);
+	printf("Channel Data Offset: 0x%X\n", header->previous_data_section_offset);
+	printf("Size of Channel Data Area: %i bytes\n", header->previous_data_section_offset);
+	printf("Data Section Flag: %i\n", header->flags);
 }
 
 // Read a file/data section variable into the variable pointed to by /variable'. The user must ensure
