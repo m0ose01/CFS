@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "cfs.h"
+#include "./cfs.h"
+
+// NOTE: 'ds' stands for 'data section' See CFS manual for details.
 
 int main(int argc, char *argv[])
 {
@@ -12,21 +14,21 @@ int main(int argc, char *argv[])
 	}
 	char *file_name = argv[1];
 	FILE *cfs_file = fopen(file_name, "r");
-	CFSGeneralHeader general_header;
-	read_general_header(cfs_file, &general_header);
-	print_general_header(&general_header);
+	CFSFileGeneralHeader general_header;
+	read_file_general_header(cfs_file, &general_header);
+	print_file_general_header(&general_header);
 
 	const int CHANNEL_COUNT = general_header.channel_count;
 
-	CFSChannelHeader *channel_headers = malloc(sizeof(CFSChannelHeader) * CHANNEL_COUNT);
+	CFSFileChannelHeader *channel_headers = malloc(sizeof(CFSFileChannelHeader) * CHANNEL_COUNT);
 	if (channel_headers == NULL)
 	{
 		return 1;
 	}
 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 	{
-		read_channel_header(cfs_file, &channel_headers[current_channel]);
-		print_channel_header(&channel_headers[current_channel]);
+		read_file_channel_header(cfs_file, &channel_headers[current_channel]);
+		print_file_channel_header(&channel_headers[current_channel]);
 	}
 
 	// We add one because there is a 'system file var to calculate the size of var n-1?'
@@ -69,17 +71,17 @@ int main(int argc, char *argv[])
 	fseek(cfs_file, POINTER_TABLE_OFFSET, SEEK_SET);
 	fread(pointer_table, sizeof(int32_t), DATA_SECTION_COUNT, cfs_file);
 
-	CFSDataSectionHeader *data_section_headers = malloc(sizeof(CFSDataSectionHeader) * DATA_SECTION_COUNT);
+	CFSDSGeneralHeader *data_section_headers = malloc(sizeof(CFSDSGeneralHeader) * DATA_SECTION_COUNT);
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		printf("%i\n", pointer_table[current_data_section_header]);
 		fseek(cfs_file, pointer_table[current_data_section_header], SEEK_SET);
-		read_data_section_header(cfs_file, &data_section_headers[current_data_section_header]);
+		read_ds_general_header(cfs_file, &data_section_headers[current_data_section_header]);
 	}
 
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
-		print_data_section_header(&data_section_headers[current_data_section_header]);
+		print_ds_general_header(&data_section_headers[current_data_section_header]);
 	}
 
 	free(channel_headers);
@@ -96,7 +98,7 @@ int main(int argc, char *argv[])
 }
 
 // Read contents of a CFS file header into a struct.
-void read_general_header(FILE *file, CFSGeneralHeader *header)
+void read_file_general_header(FILE *file, CFSFileGeneralHeader *header)
 {
 	// Read contents of file header into the struct one by one.
 	// This is safer and more portable than reading the header directly into a packed struct.
@@ -119,7 +121,7 @@ void read_general_header(FILE *file, CFSGeneralHeader *header)
 }
 
 // Read contents of a CFS file channel header into a struct.
-void read_channel_header(FILE *file, CFSChannelHeader *header)
+void read_file_channel_header(FILE *file, CFSFileChannelHeader *header)
 {
 	fread(&header->channel_name, sizeof(header->channel_name), 1, file);
 	fread(&header->y_axis_units, sizeof(header->y_axis_units), 1, file);
@@ -139,7 +141,7 @@ void read_variable_header(FILE *file, CFSVariableHeader *header)
 }
 
 // Print out all info in the CFS file header.
-void print_general_header(CFSGeneralHeader *header)
+void print_file_general_header(CFSFileGeneralHeader *header)
 {
 	printf("File ID: %.*s\n", 8, header->file_id);
 	printf("File Name: %s\n", header->file_name);
@@ -159,7 +161,7 @@ void print_general_header(CFSGeneralHeader *header)
 }
 
 // Print out all info in a CFS file channel header.
-void print_channel_header(CFSChannelHeader *header)
+void print_file_channel_header(CFSFileChannelHeader *header)
 {
 	printf("Channel Name: '%s'\n", header->channel_name);
 	printf("Y Axis Units: '%s'\n", header->y_axis_units);
@@ -170,7 +172,7 @@ void print_channel_header(CFSChannelHeader *header)
 	printf("Next Channel Number: %i\n", header->next_channel);
 }
 
-void read_data_section_header(FILE *cfs_file, CFSDataSectionHeader *header)
+void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header)
 {
 	fread(&header->previous_data_section_offset, sizeof(header->previous_data_section_offset), 1, cfs_file);
 	fread(&header->channel_data_offset, sizeof(header->channel_data_offset), 1, cfs_file);
@@ -228,7 +230,7 @@ void print_variable(void *variable, CFSDataType variable_type)
 
 }
 
-void print_data_section_header(CFSDataSectionHeader *header)
+void print_ds_general_header(CFSDSGeneralHeader *header)
 {
 	printf("Previous Data Section Offset: 0x%X\n", header->previous_data_section_offset);
 	printf("Channel Data Offset: 0x%X\n", header->previous_data_section_offset);

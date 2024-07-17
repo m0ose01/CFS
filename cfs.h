@@ -43,7 +43,7 @@ typedef struct
 	char file_comment[74];
 	cfs_long pointer_table_offset;
 	BYTE reserved_space[40];	
-} CFSGeneralHeader;
+} CFSFileGeneralHeader;
 
 typedef struct
 {
@@ -54,7 +54,7 @@ typedef struct
 	BYTE data_kind;
 	cfs_short space_between_elements_bytes;
 	cfs_short next_channel;
-} CFSChannelHeader;
+} CFSFileChannelHeader;
 
 // Header for EITHER file variables or data section variables.
 typedef struct
@@ -73,17 +73,17 @@ typedef struct
 	cfs_word flags;
 	BYTE reserved_space[16];
 
-} CFSDataSectionHeader;
+} CFSDSGeneralHeader;
 
-void print_general_header(CFSGeneralHeader *cfs_header);
-void print_channel_header(CFSChannelHeader *channel_header);
+void print_file_general_header(CFSFileGeneralHeader *cfs_header);
+void print_file_channel_header(CFSFileChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
 void print_variable(void *variable, CFSDataType variable_type);
-void print_data_section_header(CFSDataSectionHeader *header);
-void read_general_header(FILE *file, CFSGeneralHeader *cfs_header);
-void read_channel_header(FILE *file, CFSChannelHeader *channel_header);
+void print_ds_general_header(CFSDSGeneralHeader *header);
+void read_file_general_header(FILE *file, CFSFileGeneralHeader *cfs_header);
+void read_file_channel_header(FILE *file, CFSFileChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
 void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest);
-void read_data_section_header(FILE *cfs_file, CFSDataSectionHeader *header);
+void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header);
 int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
 
