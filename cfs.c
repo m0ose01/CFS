@@ -12,84 +12,49 @@ int main(int argc, char *argv[])
 	}
 	char *file_name = argv[1];
 	FILE *cfs_file = fopen(file_name, "r");
-	CFSGeneralHeader *general_header = malloc(sizeof(CFSGeneralHeader));
-	if (general_header == NULL)
-	{
-		return 1;
-	}
-	read_general_header(cfs_file, general_header);
-	print_general_header(general_header);
+	CFSGeneralHeader general_header;
+	read_general_header(cfs_file, &general_header);
+	print_general_header(&general_header);
 
-	const int CHANNEL_COUNT = general_header->channel_count;
+	const int CHANNEL_COUNT = general_header.channel_count;
 
-	CFSChannelHeader **channel_headers = malloc(sizeof(CFSChannelHeader *) * CHANNEL_COUNT);
+	CFSChannelHeader *channel_headers = malloc(sizeof(CFSChannelHeader) * CHANNEL_COUNT);
 	if (channel_headers == NULL)
 	{
 		return 1;
 	}
 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 	{
-		CFSChannelHeader *channel_header = malloc(sizeof(CFSChannelHeader));
-		if (channel_header == NULL)
-		{
-			return 1;
-		}
-		read_channel_header(cfs_file, channel_header);
-		print_channel_header(channel_header);
-		channel_headers[current_channel] = channel_header;
+		read_channel_header(cfs_file, &channel_headers[current_channel]);
+		print_channel_header(&channel_headers[current_channel]);
 	}
 
 	// We add one because there is a 'system file var to calculate the size of var n-1?'
-	const int FILE_VARIABLE_COUNT = general_header->file_variable_count + 1;
+	const int FILE_VARIABLE_COUNT = general_header.file_variable_count + 1;
 
-	CFSVariableHeader **file_variable_headers = malloc(sizeof(CFSVariableHeader *) * FILE_VARIABLE_COUNT);
+	CFSVariableHeader *file_variable_headers = malloc(sizeof(CFSVariableHeader) * FILE_VARIABLE_COUNT);
 	for (int current_file_variable_header = 0; current_file_variable_header < FILE_VARIABLE_COUNT; current_file_variable_header++)
 	{
-		CFSVariableHeader *file_variable_header = malloc(sizeof(CFSVariableHeader));
-		if (file_variable_header == NULL)
-		{
-			return 1;
-		}
-		read_variable_header(cfs_file, file_variable_header);
-		print_variable_header(file_variable_header);
-		file_variable_headers[current_file_variable_header] = file_variable_header;
+		read_variable_header(cfs_file, &file_variable_headers[current_file_variable_header]);
+		print_variable_header(&file_variable_headers[current_file_variable_header]);
 	}
 
-	const int DATA_SECTION_VARIABLE_COUNT = general_header->data_section_variable_count + 1;
+	const int DATA_SECTION_VARIABLE_COUNT = general_header.data_section_variable_count + 1;
 
-	CFSVariableHeader **data_section_variable_headers = malloc(sizeof(CFSVariableHeader *) * DATA_SECTION_VARIABLE_COUNT);
+	CFSVariableHeader *data_section_variable_headers = malloc(sizeof(CFSVariableHeader) * DATA_SECTION_VARIABLE_COUNT);
 
 	for (int current_data_section_variable_header = 0; current_data_section_variable_header < DATA_SECTION_VARIABLE_COUNT; current_data_section_variable_header++)
 	{
-		CFSVariableHeader *data_section_variable_header = malloc(sizeof(CFSVariableHeader));
-		if (data_section_variable_header == NULL)
-		{
-			return 1;
-		}
-		read_variable_header(cfs_file, data_section_variable_header);
-		print_variable_header(data_section_variable_header);
-		data_section_variable_headers[current_data_section_variable_header] = data_section_variable_header;
+		read_variable_header(cfs_file, &data_section_variable_headers[current_data_section_variable_header]);
+		print_variable_header(&data_section_variable_headers[current_data_section_variable_header]);
 	}
 
-	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
-	{
-		free(channel_headers[current_channel]);
-	}
 	free(channel_headers);
 
-	for (int current_file_variable_header = 0; current_file_variable_header < FILE_VARIABLE_COUNT; current_file_variable_header++)
-	{
-		free(file_variable_headers[current_file_variable_header]);
-	}
 	free(file_variable_headers);
 
-	for (int current_data_section_variable_header; current_data_section_variable_header < DATA_SECTION_VARIABLE_COUNT; current_data_section_variable_header++)
-	{
-		free(data_section_variable_headers[current_data_section_variable_header]);
-	}
 	free(data_section_variable_headers);
 
-	free(general_header);
 	fclose(cfs_file);
 }
 
