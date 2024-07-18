@@ -35,6 +35,10 @@ int main(int argc, char *argv[])
 	const int FILE_VARIABLE_COUNT = general_header.file_variable_count + 1;
 
 	CFSVariableHeader *file_variable_headers = malloc(sizeof(CFSVariableHeader) * FILE_VARIABLE_COUNT);
+	if (file_variable_headers == NULL)
+	{
+		return 1;
+	}
 	for (int current_file_variable_header = 0; current_file_variable_header < FILE_VARIABLE_COUNT; current_file_variable_header++)
 	{
 		read_variable_header(cfs_file, &file_variable_headers[current_file_variable_header]);
@@ -44,7 +48,10 @@ int main(int argc, char *argv[])
 	const int DATA_SECTION_VARIABLE_COUNT = general_header.data_section_variable_count + 1;
 
 	CFSVariableHeader *data_section_variable_headers = malloc(sizeof(CFSVariableHeader) * DATA_SECTION_VARIABLE_COUNT);
-
+	if (data_section_variable_headers == NULL)
+	{
+		return 1;
+	}
 	for (int current_data_section_variable_header = 0; current_data_section_variable_header < DATA_SECTION_VARIABLE_COUNT; current_data_section_variable_header++)
 	{
 		read_variable_header(cfs_file, &data_section_variable_headers[current_data_section_variable_header]);
@@ -67,12 +74,24 @@ int main(int argc, char *argv[])
 	const int DATA_SECTION_COUNT = general_header.data_section_count;
 
 	int32_t *pointer_table = malloc(sizeof(int32_t) * DATA_SECTION_COUNT);
+	if (pointer_table == NULL)
+	{
+		return 1;
+	}
 
 	fseek(cfs_file, POINTER_TABLE_OFFSET, SEEK_SET);
 	fread(pointer_table, sizeof(int32_t), DATA_SECTION_COUNT, cfs_file);
 
 	CFSDSGeneralHeader *data_section_headers = malloc(sizeof(CFSDSGeneralHeader) * DATA_SECTION_COUNT);
+	if (data_section_headers == NULL)
+	{
+		return 1;
+	}
 	CFSDSChannelHeader *ds_channel_headers = malloc(sizeof(CFSDSChannelHeader) * DATA_SECTION_COUNT);
+	if (ds_channel_headers == NULL)
+	{
+		return 1;
+	}
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		printf("%i\n", pointer_table[current_data_section_header]);
