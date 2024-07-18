@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	{
 		return 1;
 	}
-	CFSDSChannelHeader *ds_channel_headers = malloc(sizeof(CFSDSChannelHeader) * DATA_SECTION_COUNT);
+	CFSDSChannelHeader *ds_channel_headers = malloc(sizeof(CFSDSChannelHeader) * DATA_SECTION_COUNT * CHANNEL_COUNT);
 	if (ds_channel_headers == NULL)
 	{
 		return 1;
@@ -97,13 +97,19 @@ int main(int argc, char *argv[])
 		printf("%i\n", pointer_table[current_data_section_header]);
 		fseek(cfs_file, pointer_table[current_data_section_header], SEEK_SET);
 		read_ds_general_header(cfs_file, &data_section_headers[current_data_section_header]);
-		read_ds_channel_header(cfs_file, &ds_channel_headers[current_data_section_header]);
+		for (int current_channel_header = 0; current_channel_header < CHANNEL_COUNT; current_channel_header++)
+		{
+			read_ds_channel_header(cfs_file, &ds_channel_headers[current_data_section_header + (current_channel_header * DATA_SECTION_COUNT)]);
+		}
 	}
 
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		print_ds_general_header(&data_section_headers[current_data_section_header]);
-		print_ds_channel_header(&ds_channel_headers[current_data_section_header]);
+		for (int current_channel_header = 0; current_channel_header < CHANNEL_COUNT; current_channel_header++)
+		{
+			print_ds_channel_header(&ds_channel_headers[current_data_section_header + (current_channel_header * DATA_SECTION_COUNT)]);
+		}
 	}
 
 	free(channel_headers);
