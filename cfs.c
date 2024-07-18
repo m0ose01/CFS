@@ -72,16 +72,19 @@ int main(int argc, char *argv[])
 	fread(pointer_table, sizeof(int32_t), DATA_SECTION_COUNT, cfs_file);
 
 	CFSDSGeneralHeader *data_section_headers = malloc(sizeof(CFSDSGeneralHeader) * DATA_SECTION_COUNT);
+	CFSDSChannelHeader *ds_channel_headers = malloc(sizeof(CFSDSChannelHeader) * DATA_SECTION_COUNT);
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		printf("%i\n", pointer_table[current_data_section_header]);
 		fseek(cfs_file, pointer_table[current_data_section_header], SEEK_SET);
 		read_ds_general_header(cfs_file, &data_section_headers[current_data_section_header]);
+		read_ds_channel_header(cfs_file, &ds_channel_headers[current_data_section_header]);
 	}
 
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		print_ds_general_header(&data_section_headers[current_data_section_header]);
+		print_ds_channel_header(&ds_channel_headers[current_data_section_header]);
 	}
 
 	free(channel_headers);
@@ -93,6 +96,8 @@ int main(int argc, char *argv[])
 	free(pointer_table);
 
 	free(data_section_headers);
+
+	free(ds_channel_headers);
 
 	fclose(cfs_file);
 }
@@ -181,6 +186,16 @@ void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header)
 	fread(&header->reserved_space, sizeof(header->reserved_space), 1, cfs_file);
 }
 
+void read_ds_channel_header(FILE *cfs_file, CFSDSChannelHeader *header)
+{
+	fread(&header->first_byte_offset, sizeof(header->first_byte_offset), 1, cfs_file);
+	fread(&header->data_points_count, sizeof(header->data_points_count), 1, cfs_file);
+	fread(&header->y_scale, sizeof(header->y_scale), 1, cfs_file);
+	fread(&header->y_offset, sizeof(header->y_offset), 1, cfs_file);
+	fread(&header->x_increment, sizeof(header->x_increment), 1, cfs_file);
+	fread(&header->x_offset, sizeof(header->x_offset), 1, cfs_file);
+}
+
 // Print info for the header of a file variable header or data section variable header.
 void print_variable_header(CFSVariableHeader *header)
 {
@@ -236,6 +251,16 @@ void print_ds_general_header(CFSDSGeneralHeader *header)
 	printf("Channel Data Offset: 0x%X\n", header->previous_data_section_offset);
 	printf("Size of Channel Data Area: %i bytes\n", header->previous_data_section_offset);
 	printf("Data Section Flag: %i\n", header->flags);
+}
+
+void print_ds_channel_header(CFSDSChannelHeader *header)
+{
+	printf("Offset to First Byte: 0x%X\n", header->first_byte_offset);
+	printf("Data Points: %i\n", header->data_points_count);
+	printf("Y Scale: %f\n", header->y_scale);
+	printf("Y Offset: %f\n", header->y_offset);
+	printf("X Increment: %f\n", header->x_increment);
+	printf("X Offset: %f\n", header->x_offset);
 }
 
 // Read a file/data section variable into the variable pointed to by /variable'. The user must ensure

@@ -75,11 +75,24 @@ typedef struct
 
 } CFSDSGeneralHeader;
 
+typedef struct
+{
+	cfs_long first_byte_offset;
+	cfs_long data_points_count;
+	float y_scale;
+	float y_offset;
+	float x_increment;
+	float x_offset;
+
+} CFSDSChannelHeader;
+
 void print_file_general_header(CFSFileGeneralHeader *cfs_header);
 void print_file_channel_header(CFSFileChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
 void print_variable(void *variable, CFSDataType variable_type);
 void print_ds_general_header(CFSDSGeneralHeader *header);
+void print_ds_channel_header(CFSDSChannelHeader *header);
+void read_ds_channel_header(FILE *cfs_file, CFSDSChannelHeader *header);
 void read_file_general_header(FILE *file, CFSFileGeneralHeader *cfs_header);
 void read_file_channel_header(FILE *file, CFSFileChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
