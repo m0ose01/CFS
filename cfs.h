@@ -1,11 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef int16_t cfs_short;
-typedef int32_t cfs_long;
-typedef uint8_t BYTE;
-typedef uint16_t cfs_word;
-
 typedef enum
 {
 	INT1 = 0,
@@ -29,20 +24,20 @@ typedef struct
 {
 	char file_id[8];
 	char file_name[14];
-	cfs_long file_size;
+	int32_t file_size;
 	char file_creation_time[8];
 	char file_creation_date[8];
-	cfs_short channel_count;
-	cfs_short file_variable_count;
-	cfs_short data_section_variable_count;
-	cfs_short file_header_size_bytes;
-	cfs_short data_section_header_size_bytes;
-	cfs_long final_data_section_header_offset;
-	cfs_word data_section_count;	
-	cfs_word disk_block_size_rounding;
+	int16_t channel_count;
+	int16_t file_variable_count;
+	int16_t data_section_variable_count;
+	int16_t file_header_size_bytes;
+	int16_t data_section_header_size_bytes;
+	int32_t final_data_section_header_offset;
+	uint16_t data_section_count;
+	uint16_t disk_block_size_rounding;
 	char file_comment[74];
-	cfs_long pointer_table_offset;
-	BYTE reserved_space[40];	
+	int32_t pointer_table_offset;
+	uint8_t reserved_space[40];
 } CFSFileGeneralHeader;
 
 typedef struct
@@ -50,35 +45,35 @@ typedef struct
 	char channel_name[22];
 	char y_axis_units[10];
 	char x_axis_units[10];
-	BYTE data_type;
-	BYTE data_kind;
-	cfs_short space_between_elements_bytes;
-	cfs_short next_channel;
+	uint8_t data_type;
+	uint8_t data_kind;
+	int16_t space_between_elements_bytes;
+	int16_t next_channel;
 } CFSFileChannelHeader;
 
 // Header for EITHER file variables or data section variables.
 typedef struct
 {
 	char description[22];
-	cfs_word type;
+	uint16_t type;
 	char units[10];
-	cfs_short offset; // Offset from the start of the data section variable area, or the file variable area.
+	int16_t offset; // Offset from the start of the data section variable area, or the file variable area.
 } CFSVariableHeader;
 
 typedef struct
 {
-	cfs_long previous_data_section_offset;
-	cfs_long channel_data_offset;
-	cfs_long channel_data_size;	
-	cfs_word flags;
-	BYTE reserved_space[16];
+	int32_t previous_data_section_offset;
+	int32_t channel_data_offset;
+	int32_t channel_data_size;
+	uint16_t flags;
+	uint8_t reserved_space[16];
 
 } CFSDSGeneralHeader;
 
 typedef struct
 {
-	cfs_long first_byte_offset;
-	cfs_long data_points_count;
+	int32_t first_byte_offset;
+	int32_t data_points_count;
 	float y_scale;
 	float y_offset;
 	float x_increment;
