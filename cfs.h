@@ -62,6 +62,13 @@ typedef struct
 
 typedef struct
 {
+	CFSDataType data_type;
+	int32_t data_points_count;
+	void *data;
+} CFSChannelData;
+
+typedef struct
+{
 	int32_t previous_data_section_offset;
 	int32_t channel_data_offset;
 	int32_t channel_data_size;
@@ -93,5 +100,8 @@ void read_file_channel_header(FILE *file, CFSFileChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
 void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest);
 void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header);
-int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
+int read_channel_data(FILE *cfs_file, long int offset, CFSDataType data_type, int16_t space_between_points_bytes, int data_points_count, void *dest);
+int read_int2_channel_data(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest);
+int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
+int get_variable_size(CFSDataType *type);
 

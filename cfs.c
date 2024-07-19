@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
 	{
 		CFSVariableHeader current_file_variable_header = file_variable_headers[current_file_variable];
-		uint8_t file_variable_size = get_variable_size_bytes(cfs_file, FILE_VARIABLE_AREA_OFFSET, &current_file_variable_header);
+		uint8_t file_variable_size = get_variable_size_string(cfs_file, FILE_VARIABLE_AREA_OFFSET, &current_file_variable_header);
 		void *file_variable = malloc(file_variable_size);
 		read_variable(cfs_file, FILE_VARIABLE_AREA_OFFSET + current_file_variable_header.offset, file_variable_size, file_variable);
 		print_variable(file_variable, current_file_variable_header.type);
@@ -112,6 +112,95 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	CFSChannelData *channel_data = malloc(sizeof(CFSChannelData) * DATA_SECTION_COUNT * CHANNEL_COUNT);
+	if (channel_data == NULL)
+	{
+		return 1;
+	}
+
+	for (int current_data_section = 0; current_data_section < DATA_SECTION_COUNT; current_data_section++)
+	{
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			int ds_channel_index = current_data_section + (current_channel * DATA_SECTION_COUNT);
+
+			CFSDSChannelHeader *current_ds_channel_header = &ds_channel_headers[ds_channel_index];
+			CFSDSGeneralHeader *current_ds_general_header = &data_section_headers[current_data_section];
+			CFSFileChannelHeader *current_file_channel_header = &channel_headers[current_channel];
+			CFSChannelData *current_channel_data = &channel_data[ds_channel_index];
+
+			// Calculate offset of channel data
+			int channel_data_offset = current_ds_general_header->channel_data_offset;
+			int first_byte_offset = current_ds_channel_header->first_byte_offset;
+			int offset = channel_data_offset + first_byte_offset;
+
+			// Get number of data points in channel
+			int points_count = current_ds_channel_header->data_points_count;
+			
+			// Get space between elements of channel data
+			int space_between_elements = current_file_channel_header->space_between_elements_bytes;
+
+			CFSDataType current_type = current_file_channel_header->data_type;
+
+
+			int size = get_variable_size(&current_type);
+			void *data = malloc(size * points_count);
+
+
+			int points_read = read_channel_data(cfs_file, offset, current_type, space_between_elements, points_count, data);
+			current_channel_data->data_points_count = points_read;
+			current_channel_data->data_type = current_type;
+			current_channel_data->data = data;
+		}
+	}
+
+	FILE *data_csv = fopen("cfs_data.csv", "w");
+	if (data_csv == NULL)
+	{
+		return 2;
+	}
+	fprintf(data_csv, "data_section,channel,s,amplitude\n");
+
+	for (int current_data_section = 0; current_data_section < DATA_SECTION_COUNT; current_data_section++)
+	{
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			int ds_channel_index = current_data_section + (current_channel * DATA_SECTION_COUNT);
+
+			CFSFileChannelHeader *current_file_channel_header = &channel_headers[current_channel];
+			CFSDSGeneralHeader *current_ds_general_header = &data_section_headers[current_data_section];
+			CFSDSChannelHeader *current_ds_channel_header = &ds_channel_headers[ds_channel_index];
+			CFSChannelData *current_channel_data = &channel_data[ds_channel_index];
+
+			CFSDataType current_type = current_file_channel_header->data_type;
+
+			const int POINTS_COUNT = current_channel_data->data_points_count;
+
+			float y_scale = current_ds_channel_header->y_scale;
+			float y_offset = current_ds_channel_header->y_offset;
+			float x_offset = current_ds_channel_header->x_offset;
+			float x_increment = current_ds_channel_header->x_increment;
+
+			switch (current_type)
+			{
+				case INT2:
+					for (int current_point = 0; current_point < POINTS_COUNT; current_point++)
+					{
+						float current_seconds = (x_offset + current_point) * x_increment;
+						float current_amplitude = y_scale * ((int16_t *)current_channel_data->data)[current_point] + y_offset;
+						fprintf(data_csv, "%i,%i,%f,%f\n", current_data_section, current_channel, current_seconds, current_amplitude);
+					}
+					break;
+				default:
+					printf("WARNING: CSV Writing is currently not implemented for types other than INT2.");
+					break;
+			}
+		}
+
+	}
+
+	fclose(data_csv);
+
 	free(channel_headers);
 
 	free(file_variable_headers);
@@ -125,6 +214,16 @@ int main(int argc, char *argv[])
 	free(ds_channel_headers);
 
 	fclose(cfs_file);
+
+	for (int current_data_section = 0; current_data_section < DATA_SECTION_COUNT; current_data_section++)
+	{
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			CFSChannelData current_channel_data = channel_data[current_data_section + (current_channel * DATA_SECTION_COUNT)];
+			free(current_channel_data.data);
+		}
+	}
+	free(channel_data);
 }
 
 // Read contents of a CFS file header into a struct.
@@ -296,7 +395,7 @@ void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes,
 	int x = fread(dest, variable_size_bytes, 1, cfs_file);
 }
 
-int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header)
+int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header)
 {
 	fseek(cfs_file, variable_area_offset, SEEK_SET);
 	fseek(cfs_file, variable_header->offset, SEEK_CUR);
@@ -306,26 +405,68 @@ int get_variable_size_bytes(FILE *cfs_file, long int variable_area_offset, CFSVa
 	uint8_t variable_size = 0;
 	switch (variable_type)
 	{
-		case INT1:
-		case WRD1:
-			variable_size = sizeof(int8_t);
-			break;
-		case INT2:
-		case WRD2:
-			variable_size = sizeof(int16_t);
-			break;
-		case INT4:
-		case RL4:
-			variable_size = sizeof(float);
-			break;
-		case RL8:
-			variable_size = sizeof(double);
-			break;
 		case LSTR:
 			// In the case of the 'LSTR' data type, the size of the string
 			// is stored in the first byte of the variable.
 			fread(&variable_size, sizeof(uint8_t), 1, cfs_file);
 			break;
+		default:
+			variable_size = get_variable_size(&variable_type);
 	}
 	return variable_size;
 }
+
+int get_variable_size(CFSDataType *type)
+{
+	int variable_size = 0;
+	switch (*type)
+	{
+		case INT1:
+		case WRD1:
+			variable_size = sizeof(int8_t);
+		break;
+		case INT2:
+		case WRD2:
+			variable_size = sizeof(int16_t);
+		break;
+		case INT4:
+		case RL4:
+			variable_size = sizeof(float);
+		break;
+		case RL8:
+			variable_size = sizeof(double);
+		break;
+		case LSTR:
+			variable_size = sizeof(char *);
+		break;
+	}
+	return variable_size;
+}
+
+int read_channel_data(FILE *cfs_file, long int offset, CFSDataType data_type, int16_t space_between_points_bytes, int data_points_count, void *dest)
+{
+	switch (data_type)
+	{
+		case INT2:
+			return read_int2_channel_data(cfs_file, offset, space_between_points_bytes, data_points_count, (int16_t *) dest);
+			break;
+		default:
+			printf("ERROR: read_channel_data is currently not implemented for types other than int2.\n");
+			return -1;
+	}
+	return 0;
+}
+
+int read_int2_channel_data(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest)
+{
+	fseek(cfs_file, offset, SEEK_SET);
+	int variable_size_bytes = sizeof(int16_t);
+	int current_point;
+	for (current_point = 0; current_point < data_points_count; current_point++)
+	{
+		fread(&dest[current_point], variable_size_bytes, 1, cfs_file);
+		fseek(cfs_file, space_between_points_bytes - variable_size_bytes, SEEK_CUR);
+	}
+	return current_point;
+}
+
