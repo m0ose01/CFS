@@ -111,6 +111,11 @@ int main(int argc, char *argv[])
 	{
 		return 1;
 	}
+	CFSVariable *ds_variables = malloc(sizeof(CFSVariable) * DATA_SECTION_COUNT * DATA_SECTION_VARIABLE_COUNT);
+	if (ds_variables == NULL)
+	{
+		return 1;
+	}
 	for (int current_data_section_header = 0; current_data_section_header < DATA_SECTION_COUNT; current_data_section_header++)
 	{
 		printf("%i\n", pointer_table[current_data_section_header]);
@@ -119,6 +124,23 @@ int main(int argc, char *argv[])
 		for (int current_channel_header = 0; current_channel_header < CHANNEL_COUNT; current_channel_header++)
 		{
 			read_ds_channel_header(cfs_file, &ds_channel_headers[current_data_section_header + (current_channel_header * DATA_SECTION_COUNT)]);
+		}
+		const int DATA_SECTION_VARIABLE_AREA_OFFSET = ftell(cfs_file);
+		for (int current_ds_variable = 0; current_ds_variable < DATA_SECTION_VARIABLE_COUNT; current_ds_variable++)
+		{
+			int ds_variable_idx = current_data_section_header + (current_ds_variable * DATA_SECTION_COUNT);
+			CFSVariable *current_ds_variable_struct = &ds_variables[ds_variable_idx];
+			CFSVariableHeader *current_ds_variable_header = &(data_section_variable_headers[current_ds_variable]);
+			int variable_size = get_variable_size_string(cfs_file, DATA_SECTION_VARIABLE_AREA_OFFSET, current_ds_variable_header);
+
+			void *data = malloc(variable_size);
+
+			read_variable(cfs_file, DATA_SECTION_VARIABLE_AREA_OFFSET + current_ds_variable_header->offset, variable_size, data);
+			current_ds_variable_struct->data_type = current_ds_variable_header->type;
+			current_ds_variable_struct->data = data;
+			print_variable_header(current_ds_variable_header);
+			print_variable(current_ds_variable_struct);
+			printf("\n");
 		}
 	}
 
@@ -231,6 +253,17 @@ int main(int argc, char *argv[])
 	free(data_section_headers);
 
 	free(ds_channel_headers);
+
+	for (int current_ds = 0; current_ds < DATA_SECTION_COUNT; current_ds++)
+	{
+		for (int current_ds_variable = 0; current_ds_variable < DATA_SECTION_VARIABLE_COUNT; current_ds_variable++)
+		{ 
+			int ds_variable_idx = current_ds + (current_ds_variable * DATA_SECTION_COUNT);
+			CFSVariable *current_ds_variable_struct = &ds_variables[ds_variable_idx];
+			free(current_ds_variable_struct->data);
+		}
+	}
+	free(ds_variables);
 
 	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
 	{
