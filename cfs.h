@@ -136,14 +136,10 @@ void read_ds_channel_header(FILE *cfs_file, CFSDSChannelHeader *header);
 void read_file_general_header(FILE *file, CFSFileGeneralHeader *cfs_header);
 void read_file_channel_header(FILE *file, CFSFileChannelHeader *channel_header);
 void read_variable_header(FILE *file, CFSVariableHeader *header);
-void read_variable_old(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest);
 int read_variable(FILE *cfs_file, CFSVariableHeader *header, CFSVariable *variable);
 void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header);
-int read_channel_data_old(FILE *cfs_file, long int offset, CFSDataType data_type, int16_t space_between_points_bytes, int data_points_count, void *dest);
 int read_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data);
 int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data);
-int read_int2_channel_data_old(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest);
-int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
 int get_variable_size(CFSDataType type);
 int write_csv_int2(CFSFile *file, FILE *csv_file);
 
