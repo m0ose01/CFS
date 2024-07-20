@@ -77,7 +77,13 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 
-		read_variable(cfs_file, FILE_VARIABLE_AREA_OFFSET + current_file_variable_header.offset, file_variable_size, file_variable);
+		int offset = FILE_VARIABLE_AREA_OFFSET + current_file_variable_header.offset;
+		if (current_file_variable_header.type == LSTR)
+		{
+			offset += sizeof(uint8_t);
+		}
+
+		read_variable(cfs_file, offset, file_variable_size, file_variable);
 
 		current_file_variable_struct->data = file_variable;
 		current_file_variable_struct->data_type = current_file_variable_header.type;
@@ -134,8 +140,14 @@ int main(int argc, char *argv[])
 			int variable_size = get_variable_size_string(cfs_file, DATA_SECTION_VARIABLE_AREA_OFFSET, current_ds_variable_header);
 
 			void *data = malloc(variable_size);
+			int offset = DATA_SECTION_VARIABLE_AREA_OFFSET + current_ds_variable_header->offset;
 
-			read_variable(cfs_file, DATA_SECTION_VARIABLE_AREA_OFFSET + current_ds_variable_header->offset, variable_size, data);
+			if (current_ds_variable_header->type == LSTR)
+			{
+				offset += sizeof(uint8_t);
+			}
+
+			read_variable(cfs_file, offset, variable_size, data);
 			current_ds_variable_struct->data_type = current_ds_variable_header->type;
 			current_ds_variable_struct->data = data;
 			print_variable_header(current_ds_variable_header);
@@ -322,9 +334,14 @@ void read_file_channel_header(FILE *file, CFSFileChannelHeader *header)
 
 void read_variable_header(FILE *file, CFSVariableHeader *header)
 {
-	fread(&header->description, sizeof(header->description), 1, file);
+	uint8_t string_size;
+	fread(&string_size, sizeof(string_size), 1, file);
+	fread(&header->description, sizeof(header->description) - 1, 1, file);
+	header->description[string_size] = '\0';
 	fread(&header->type, sizeof(header->type), 1, file);
-	fread(&header->units, sizeof(header->units), 1, file);
+	fread(&string_size, sizeof(string_size), 1, file);
+	fread(&header->units, sizeof(header->units) - 1, 1, file);
+	header->units[string_size] = '\0';
 	fread(&header->offset, sizeof(header->offset), 1, file);
 }
 
