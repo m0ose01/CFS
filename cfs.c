@@ -14,6 +14,25 @@ int main(int argc, char *argv[])
 	}
 	char *file_name = argv[1];
 	FILE *cfs_file = fopen(file_name, "r");
+
+	CFSFile *file = malloc(sizeof(CFSFile));
+	if (file == NULL)
+	{
+		return 1;
+	}
+	read_cfs_file(cfs_file, file);
+	print_file_general_header(file->header->general_header);
+
+	for (int current_file_var = 0; current_file_var < 6; current_file_var++)
+	{
+		printf("\n");
+		print_variable_header(&file->header->file_variable_headers[current_file_var]);
+		print_variable(&file->header->file_variables[current_file_var]);
+	}
+
+	free_cfs_file(file);
+	free(file);
+	fseek(cfs_file, 0, SEEK_SET);
 	CFSFileGeneralHeader general_header;
 	read_file_general_header(cfs_file, &general_header);
 	print_file_general_header(&general_header);
@@ -83,7 +102,7 @@ int main(int argc, char *argv[])
 			offset += sizeof(uint8_t);
 		}
 
-		read_variable(cfs_file, offset, file_variable_size, file_variable);
+		read_variable_old(cfs_file, offset, file_variable_size, file_variable);
 
 		current_file_variable_struct->data = file_variable;
 		current_file_variable_struct->data_type = current_file_variable_header.type;
@@ -147,7 +166,7 @@ int main(int argc, char *argv[])
 				offset += sizeof(uint8_t);
 			}
 
-			read_variable(cfs_file, offset, variable_size, data);
+			read_variable_old(cfs_file, offset, variable_size, data);
 			current_ds_variable_struct->data_type = current_ds_variable_header->type;
 			current_ds_variable_struct->data = data;
 			print_variable_header(current_ds_variable_header);
@@ -196,11 +215,11 @@ int main(int argc, char *argv[])
 			CFSDataType current_type = current_file_channel_header->data_type;
 
 
-			int size = get_variable_size(&current_type);
+			int size = get_variable_size(current_type);
 			void *data = malloc(size * points_count);
 
 
-			int points_read = read_channel_data(cfs_file, offset, current_type, space_between_elements, points_count, data);
+			int points_read = read_channel_data_old(cfs_file, offset, current_type, space_between_elements, points_count, data);
 			current_channel_data->data_points_count = points_read;
 			current_channel_data->data_type = current_type;
 			current_channel_data->data = data;
@@ -465,10 +484,28 @@ void print_ds_channel_header(CFSDSChannelHeader *header)
 
 // Read a file/data section variable into the variable pointed to by /variable'. The user must ensure
 // that sufficient space is allocated for the variable.
-void read_variable(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest)
+void read_variable_old(FILE *cfs_file, long int offset, uint8_t variable_size_bytes, void *dest)
 {
 	fseek(cfs_file, offset, SEEK_SET);
 	int x = fread(dest, variable_size_bytes, 1, cfs_file);
+}
+
+int read_variable(FILE *cfs_file, CFSVariableHeader *header, CFSVariable *variable)
+{
+	fseek(cfs_file, header->offset, SEEK_CUR);
+	uint8_t variable_size = (uint8_t)get_variable_size((CFSDataType)header->type);
+	if (header->type == LSTR)
+	{
+		fread(&variable_size, sizeof(uint8_t), 1, cfs_file);
+	}
+	variable->data = malloc(variable_size);
+	if (variable->data == NULL)
+	{
+		return -1;
+	}
+	fread(variable->data, variable_size, 1, cfs_file);
+	variable->data_type = header->type;
+	return 0;
 }
 
 int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header)
@@ -487,15 +524,15 @@ int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSV
 			fread(&variable_size, sizeof(uint8_t), 1, cfs_file);
 			break;
 		default:
-			variable_size = get_variable_size(&variable_type);
+			variable_size = get_variable_size(variable_type);
 	}
 	return variable_size;
 }
 
-int get_variable_size(CFSDataType *type)
+int get_variable_size(CFSDataType type)
 {
 	int variable_size = 0;
-	switch (*type)
+	switch (type)
 	{
 		case INT1:
 		case WRD1:
@@ -519,12 +556,12 @@ int get_variable_size(CFSDataType *type)
 	return variable_size;
 }
 
-int read_channel_data(FILE *cfs_file, long int offset, CFSDataType data_type, int16_t space_between_points_bytes, int data_points_count, void *dest)
+int read_channel_data_old(FILE *cfs_file, long int offset, CFSDataType data_type, int16_t space_between_points_bytes, int data_points_count, void *dest)
 {
 	switch (data_type)
 	{
 		case INT2:
-			return read_int2_channel_data(cfs_file, offset, space_between_points_bytes, data_points_count, (int16_t *) dest);
+			return read_int2_channel_data_old(cfs_file, offset, space_between_points_bytes, data_points_count, (int16_t *) dest);
 			break;
 		default:
 			printf("ERROR: read_channel_data is currently not implemented for types other than int2.\n");
@@ -533,7 +570,46 @@ int read_channel_data(FILE *cfs_file, long int offset, CFSDataType data_type, in
 	return 0;
 }
 
-int read_int2_channel_data(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest)
+int read_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data)
+{
+	switch (file_header->data_type)
+	{
+		case INT2:
+			return read_int2_channel_data(cfs_file, file_header, ds_header, channel_data);
+		default:
+			break;
+	}
+	return 0;
+}
+
+int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data)
+{
+	const int SPACE_BETWEEN_POINTS = file_header->space_between_elements_bytes;
+	const int VARIABLE_SIZE = sizeof(int16_t);
+	const int POINTS_COUNT = ds_header->data_points_count;
+	channel_data->data = malloc(VARIABLE_SIZE * POINTS_COUNT);
+	if (channel_data->data == NULL)
+	{
+		return -1;
+	}
+	if (SPACE_BETWEEN_POINTS == VARIABLE_SIZE)
+	{
+		fread(channel_data->data, VARIABLE_SIZE * POINTS_COUNT, 1, cfs_file);
+		channel_data->data_points_count = POINTS_COUNT;
+		channel_data->data_type = file_header->data_type;
+	}
+	else
+	{
+		for (int current_point = 0; current_point < POINTS_COUNT; current_point++) // Note: I currently have no file to test this path
+		{
+			fread(&((int16_t *)(channel_data->data))[current_point], VARIABLE_SIZE, 1, cfs_file);
+			fseek(cfs_file, SPACE_BETWEEN_POINTS - VARIABLE_SIZE, SEEK_CUR);
+		}
+	}
+	return 0;
+}
+
+int read_int2_channel_data_old(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest)
 {
 	fseek(cfs_file, offset, SEEK_SET);
 	int variable_size_bytes = sizeof(int16_t);
@@ -546,3 +622,203 @@ int read_int2_channel_data(FILE *cfs_file, long int offset, int16_t space_betwee
 	return current_point;
 }
 
+int read_cfs_file(FILE *cfs_file, CFSFile *file)
+{
+	file->header = malloc(sizeof(CFSFileHeader));
+	if (file->header == NULL)
+	{
+		return -1;
+	}
+
+	file->header->general_header = malloc(sizeof(CFSFileGeneralHeader));
+	if (file->header->general_header == NULL)
+	{
+		return -1;
+	}
+
+	read_file_general_header(cfs_file, file->header->general_header);
+	
+	const int CHANNEL_COUNT = file->header->general_header->channel_count;
+	const int DS_COUNT = file->header->general_header->data_section_count;
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count + 1; // We add +1 as there is an extra 'system file variable'
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count + 1; // See above
+	const int POINTER_TABLE_OFFSET = file->header->general_header->pointer_table_offset;
+
+	file->header->channel_headers = malloc(sizeof(CFSFileChannelHeader) * CHANNEL_COUNT);
+	if (file->header->channel_headers == NULL)
+	{
+		return -1;
+	}
+
+	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+	{
+		read_file_channel_header(cfs_file, &file->header->channel_headers[current_channel]);
+	}
+
+	file->header->file_variable_headers = malloc(sizeof(CFSVariableHeader) * FILE_VAR_COUNT);
+	if (file->header->file_variable_headers == NULL)
+	{
+		return -1;
+	}
+
+	for (int current_file_var = 0; current_file_var < FILE_VAR_COUNT; current_file_var++)
+	{
+		read_variable_header(cfs_file, &file->header->file_variable_headers[current_file_var]);
+	}
+
+	file->header->ds_variable_headers = malloc(sizeof(CFSVariableHeader) * DS_VAR_COUNT);
+	if (file->header->ds_variable_headers == NULL)
+	{
+		return -1;
+	}
+
+	for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
+	{
+		read_variable_header(cfs_file, &file->header->ds_variable_headers[current_ds_var]);
+	}
+
+	file->header->file_variables = malloc(sizeof(CFSVariable) * FILE_VAR_COUNT);
+	if (file->header->file_variables == NULL)
+	{
+		return -1;
+	}
+
+	const int FILE_VAR_AREA_OFFSET = ftell(cfs_file);
+	printf("AREA OFFSET: %i\n", FILE_VAR_AREA_OFFSET);
+
+	for (int current_file_var = 0; current_file_var < FILE_VAR_COUNT; current_file_var++)
+	{
+		fseek(cfs_file, FILE_VAR_AREA_OFFSET, SEEK_SET);
+		CFSVariableHeader *current_file_var_header = &file->header->file_variable_headers[current_file_var];
+		int err = read_variable(cfs_file, current_file_var_header, &file->header->file_variables[current_file_var]);
+		if (err != 0)
+		{
+			return err;
+		}
+	}
+
+	file->pointer_table = malloc(sizeof(int32_t) * DS_COUNT);
+	if (file->pointer_table == NULL)
+	{
+		return -1;
+	}
+
+	fseek(cfs_file, POINTER_TABLE_OFFSET, SEEK_SET);
+	fread(file->pointer_table, sizeof(int32_t) * DS_COUNT, 1, cfs_file);
+
+	file->data_sections = malloc(sizeof(CFSDataSection));
+	if (file->data_sections == NULL)
+	{
+		return -1;
+	}
+
+	file->data_sections->header = malloc(sizeof(CFSDSHeader));
+	if (file->data_sections->header == NULL)
+	{
+		return -1;
+	}
+
+	file->data_sections->header->general_header = malloc(sizeof(CFSDSGeneralHeader) * DS_COUNT);
+	if (file->data_sections->header->general_header == NULL)
+	{
+		return -1;
+	}
+
+	file->data_sections->header->channel_headers = malloc(sizeof(CFSDSChannelHeader) * DS_COUNT * CHANNEL_COUNT);
+	if (file->data_sections->header->general_header == NULL)
+	{
+		return -1;
+	}
+
+	file->data_sections->header->ds_variables = malloc(sizeof(CFSVariable) * DS_COUNT * DS_VAR_COUNT);
+	if (file->data_sections->header->ds_variables == NULL)
+	{
+		return -1;
+	}
+
+	file->data_sections->channel_data = malloc(sizeof(CFSChannelData) * DS_COUNT * CHANNEL_COUNT);
+	if (file->data_sections->channel_data == NULL)
+	{
+		return -1;
+	}
+
+	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
+	{
+		int32_t current_ds_offset = file->pointer_table[current_ds];
+		fseek(cfs_file, current_ds_offset, SEEK_SET);
+		read_ds_general_header(cfs_file, &file->data_sections->header->general_header[current_ds]);
+
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			int idx = current_ds + (current_channel * DS_COUNT);
+			read_ds_channel_header(cfs_file, &file->data_sections->header->channel_headers[idx]);
+		}
+
+		for (int current_ds_variable = 0; current_ds_variable < DS_VAR_COUNT; current_ds_variable++)
+		{
+			int idx = current_ds + (current_ds_variable * DS_COUNT);
+			CFSVariableHeader *current_ds_variable_header = &file->header->ds_variable_headers[current_ds_variable];
+			read_variable(cfs_file, current_ds_variable_header, &file->data_sections->header->ds_variables[idx]);
+		}
+
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			int idx = current_ds + (current_channel * DS_COUNT);
+			CFSFileChannelHeader *current_file_channel_header = &file->header->channel_headers[current_channel];
+			CFSDSChannelHeader *current_ds_channel_header = &file->data_sections->header->channel_headers[idx];
+
+			int channel_data_offset = file->data_sections->header->general_header->channel_data_offset + current_ds_channel_header->first_byte_offset;
+			fseek(cfs_file, channel_data_offset, SEEK_SET);
+			
+			read_channel_data(cfs_file, current_file_channel_header, current_ds_channel_header, &file->data_sections->channel_data[idx]);
+		}
+	}
+
+	return 0;
+}
+
+void free_cfs_file(CFSFile *file)
+{
+	const int CHANNEL_COUNT = file->header->general_header->channel_count;
+	const int DS_COUNT = file->header->general_header->data_section_count;
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count + 1; // We add +1 as there is an extra 'system file variable'
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count + 1; // See above
+	// const int POINTER_TABLE_OFFSET = file->header->general_header->pointer_table_offset;
+
+	free(file->header->general_header);
+	free(file->header->channel_headers);
+	free(file->header->file_variable_headers);
+	free(file->header->ds_variable_headers);
+	for (int current_filevar = 0; current_filevar < FILE_VAR_COUNT; current_filevar++)
+	{
+		free(file->header->file_variables[current_filevar].data);
+	}
+	free(file->header->file_variables);
+	free(file->header);
+
+	free(file->pointer_table);
+
+	free(file->data_sections->header->general_header);
+	free(file->data_sections->header->channel_headers);
+	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
+	{
+		for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
+		{
+			int idx = current_ds + (current_ds_var * DS_COUNT);
+			free(file->data_sections->header->ds_variables[idx].data);
+		}
+	}
+	free(file->data_sections->header->ds_variables);
+	free(file->data_sections->header);
+
+	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
+	{
+		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+		{
+			int idx = current_ds + (current_channel * DS_COUNT);
+			free(file->data_sections->channel_data[idx].data);
+		}
+	}
+	free(file->data_sections->channel_data);
+	free(file->data_sections);
+}
