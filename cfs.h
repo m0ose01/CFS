@@ -94,6 +94,36 @@ typedef struct
 
 } CFSDSChannelHeader;
 
+typedef struct
+{
+	CFSFileGeneralHeader *general_header;
+	CFSFileChannelHeader *channel_headers;
+	CFSVariableHeader *file_variable_headers;
+	CFSVariableHeader *ds_variable_headers;
+	CFSVariable *file_variables;
+
+} CFSFileHeader;
+
+typedef struct
+{
+	CFSDSGeneralHeader *general_header;
+	CFSDSChannelHeader *channel_headers;
+	CFSVariableHeader *ds_variables;
+} CFSDSHeader;
+
+typedef struct
+{
+	CFSDSHeader *header;
+	CFSChannelData *channel_data;
+} CFSDataSection;
+
+typedef struct
+{
+	CFSFileHeader *header;
+	CFSDataSection *data_sections;
+	int32_t *pointer_table;
+} CFSFile;
+
 void print_file_general_header(CFSFileGeneralHeader *cfs_header);
 void print_file_channel_header(CFSFileChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
