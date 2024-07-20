@@ -385,7 +385,7 @@ void print_variable(CFSVariable *variable)
 		break;
 		case RL8:
 			printf("Type: RL8\n");
-			printf("Variable: %f\n", *(float *)variable->data);
+			printf("Variable: %f\n", *(double *)variable->data);
 		break;
 		case LSTR:
 			printf("Type: LSTR\n");
