@@ -145,4 +145,5 @@ int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CF
 int read_int2_channel_data_old(FILE *cfs_file, long int offset, int16_t space_between_points_bytes, int data_points_count, int16_t *dest);
 int get_variable_size_string(FILE *cfs_file, long int variable_area_offset, CFSVariableHeader *variable_header);
 int get_variable_size(CFSDataType type);
+int write_csv_int2(CFSFile *file, FILE *csv_file);
 
