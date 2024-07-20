@@ -766,8 +766,9 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 			int idx = current_ds + (current_channel * DS_COUNT);
 			CFSFileChannelHeader *current_file_channel_header = &file->header->channel_headers[current_channel];
 			CFSDSChannelHeader *current_ds_channel_header = &file->data_sections->header->channel_headers[idx];
+			CFSDSGeneralHeader *current_ds_general_header = &file->data_sections->header->general_header[current_ds];
 
-			int channel_data_offset = file->data_sections->header->general_header->channel_data_offset + current_ds_channel_header->first_byte_offset;
+			int channel_data_offset = current_ds_general_header->channel_data_offset + current_ds_channel_header->first_byte_offset;
 			fseek(cfs_file, channel_data_offset, SEEK_SET);
 			
 			read_channel_data(cfs_file, current_file_channel_header, current_ds_channel_header, &file->data_sections->channel_data[idx]);
