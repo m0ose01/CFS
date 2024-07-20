@@ -108,7 +108,7 @@ typedef struct
 {
 	CFSDSGeneralHeader *general_header;
 	CFSDSChannelHeader *channel_headers;
-	CFSVariableHeader *ds_variables;
+	CFSVariable *ds_variables;
 } CFSDSHeader;
 
 typedef struct
