@@ -594,8 +594,8 @@ int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CF
 	}
 	if (SPACE_BETWEEN_POINTS == VARIABLE_SIZE)
 	{
-		fread(channel_data->data, VARIABLE_SIZE * POINTS_COUNT, 1, cfs_file);
-		channel_data->data_points_count = POINTS_COUNT;
+		int points_read = fread(channel_data->data, VARIABLE_SIZE, POINTS_COUNT, cfs_file);
+		channel_data->data_points_count = points_read;
 		channel_data->data_type = file_header->data_type;
 	}
 	else
