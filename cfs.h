@@ -69,6 +69,12 @@ typedef struct
 
 typedef struct
 {
+	CFSDataType data_type;
+	void *data;
+} CFSVariable;
+
+typedef struct
+{
 	int32_t previous_data_section_offset;
 	int32_t channel_data_offset;
 	int32_t channel_data_size;
@@ -91,7 +97,7 @@ typedef struct
 void print_file_general_header(CFSFileGeneralHeader *cfs_header);
 void print_file_channel_header(CFSFileChannelHeader *channel_header);
 void print_variable_header(CFSVariableHeader *header);
-void print_variable(void *variable, CFSDataType variable_type);
+void print_variable(CFSVariable *variable);
 void print_ds_general_header(CFSDSGeneralHeader *header);
 void print_ds_channel_header(CFSDSChannelHeader *header);
 void read_ds_channel_header(FILE *cfs_file, CFSDSChannelHeader *header);

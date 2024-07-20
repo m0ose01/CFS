@@ -60,14 +60,33 @@ int main(int argc, char *argv[])
 
 	const int FILE_VARIABLE_AREA_OFFSET = ftell(cfs_file);
 
+	CFSVariable *file_variables = malloc(sizeof(CFSVariable) * FILE_VARIABLE_COUNT);
+	if (file_variables == NULL)
+	{
+		return 1;
+	}
 	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
 	{
 		CFSVariableHeader current_file_variable_header = file_variable_headers[current_file_variable];
+		CFSVariable *current_file_variable_struct = &file_variables[current_file_variable];
+
 		uint8_t file_variable_size = get_variable_size_string(cfs_file, FILE_VARIABLE_AREA_OFFSET, &current_file_variable_header);
 		void *file_variable = malloc(file_variable_size);
+		if (file_variable == NULL)
+		{
+			return 1;
+		}
+
 		read_variable(cfs_file, FILE_VARIABLE_AREA_OFFSET + current_file_variable_header.offset, file_variable_size, file_variable);
-		print_variable(file_variable, current_file_variable_header.type);
-		free(file_variable);
+
+		current_file_variable_struct->data = file_variable;
+		current_file_variable_struct->data_type = current_file_variable_header.type;
+	}
+
+	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
+	{
+		CFSVariable *current_file_variable_struct = &file_variables[current_file_variable];
+		print_variable(current_file_variable_struct);
 	}
 
 	const long int POINTER_TABLE_OFFSET = general_header.pointer_table_offset;
@@ -213,6 +232,13 @@ int main(int argc, char *argv[])
 
 	free(ds_channel_headers);
 
+	for (int current_file_variable = 0; current_file_variable < FILE_VARIABLE_COUNT; current_file_variable++)
+	{
+		CFSVariable current_file_variable_struct = file_variables[current_file_variable];
+		free(current_file_variable_struct.data);
+	}
+	free(file_variables);
+
 	fclose(cfs_file);
 
 	for (int current_data_section = 0; current_data_section < DATA_SECTION_COUNT; current_data_section++)
@@ -329,41 +355,41 @@ void print_variable_header(CFSVariableHeader *header)
 	printf("Variable Offset: 0x%X\n", header->offset);
 }
 
-void print_variable(void *variable, CFSDataType variable_type)
+void print_variable(CFSVariable *variable)
 {
-	switch (variable_type)
+	switch (variable->data_type)
 	{
 		case INT1:
 			printf("Type: INT1\n");
-			printf("File Variable: %i\n", *(uint8_t *)variable);
+			printf("Variable: %i\n", *(uint8_t *)variable->data);
 		break;
 		case WRD1:
 			printf("Type: WRD1\n");
-			printf("File Variable: %u\n", *(int8_t *)variable);
+			printf("Variable: %u\n", *(int8_t *)variable->data);
 		break;
 		case INT2:
 			printf("Type: INT2\n");
-			printf("File Variable: %i\n", *(int16_t *)variable);
+			printf("Variable: %i\n", *(int16_t *)variable->data);
 		break;
 		case WRD2:
 			printf("Type: WRD2\n");
-			printf("File Variable: %u\n", *(uint16_t *)variable);
+			printf("Variable: %u\n", *(uint16_t *)variable->data);
 		break;
 		case INT4:
 			printf("Type: INT4\n");
-			printf("File Variable: %i\n", *(int32_t *)variable);
+			printf("Variable: %i\n", *(int32_t *)variable->data);
 		break;
 		case RL4:
 			printf("Type: RL4\n");
-			printf("File Variable: %f\n", *(float *)variable);
+			printf("Variable: %f\n", *(float *)variable->data);
 		break;
 		case RL8:
 			printf("Type: RL8\n");
-			printf("File Variable: %f\n", *(float *)variable);
+			printf("Variable: %f\n", *(float *)variable->data);
 		break;
 		case LSTR:
 			printf("Type: LSTR\n");
-			printf("File Variable: %c\n", *(char *)variable);
+			printf("Variable: %c\n", *(char *)variable->data);
 		break;
 	}
 
