@@ -1,4 +1,4 @@
-cfs: include/cfs.h src/cfs.c
+bin/cfs: include/cfs.h src/cfs.c
 	cc -o bin/cfs src/*.c -Iinclude -Wall -Wextra -Wpedantic
 
 debug: include/cfs.h src/cfs.c
