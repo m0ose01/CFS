@@ -9,11 +9,15 @@ int main(int argc, char *argv[])
 {
 	if (argc < 2)
 	{
-		printf("Usage: cfs.c <filename>\n");
+		printf("Usage: cfs.c <filename> <output>\n");
 		return 1;
 	}
-	char *file_name = argv[1];
-	FILE *cfs_file = fopen(file_name, "r");
+	if (argc > 3)
+	{
+		printf("Usage: cfs.c <filename> <output>\n");
+	}
+	char *input_file_name = argv[1];
+	FILE *cfs_file = fopen(input_file_name, "r");
 
 	CFSFile *file = malloc(sizeof(CFSFile));
 	if (file == NULL)
@@ -22,9 +26,13 @@ int main(int argc, char *argv[])
 	}
 	read_cfs_file(cfs_file, file);
 
-	FILE *csv_file_test = fopen("csv_test.csv", "w");
-	write_csv_int2(file, csv_file_test);
-	fclose(csv_file_test);
+	FILE *csv_file = stdout;
+	if (argc == 3)
+	{
+		csv_file = fopen(argv[2], "w");
+	}
+	write_csv_int2(file, csv_file);
+	fclose(csv_file);
 
 	free_cfs_file(file);
 	free(file);
