@@ -1,3 +1,6 @@
+#ifndef CFS
+#define CFS
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -124,12 +127,6 @@ typedef struct
 	int32_t *pointer_table;
 } CFSFile;
 
-void print_file_general_header(CFSFileGeneralHeader *cfs_header);
-void print_file_channel_header(CFSFileChannelHeader *channel_header);
-void print_variable_header(CFSVariableHeader *header);
-void print_variable(CFSVariable *variable);
-void print_ds_general_header(CFSDSGeneralHeader *header);
-void print_ds_channel_header(CFSDSChannelHeader *header);
 int read_cfs_file(FILE *cfs_file, CFSFile *file);
 void free_cfs_file(CFSFile *file);
 void read_ds_channel_header(FILE *cfs_file, CFSDSChannelHeader *header);
@@ -141,5 +138,5 @@ void read_ds_general_header(FILE *cfs_file, CFSDSGeneralHeader *header);
 int read_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data);
 int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data);
 int get_variable_size(CFSDataType type);
-int write_csv_int2(CFSFile *file, FILE *csv_file);
 
+#endif
