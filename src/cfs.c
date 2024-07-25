@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	{
 		csv_file = fopen(argv[2], "w");
 	}
-	write_csv_int2(file, csv_file);
+	write_csv(file, csv_file);
 	fclose(csv_file);
 
 	free_cfs_file(file);
