@@ -1,4 +1,39 @@
+#include <stdlib.h>
+
 #include <cfscsv.h>
+
+int main(int argc, char *argv[])
+{
+	if (argc < 2)
+	{
+		printf("Usage: cfs.c <filename> <output>\n");
+		return 1;
+	}
+	if (argc > 3)
+	{
+		printf("Usage: cfs.c <filename> <output>\n");
+	}
+	char *input_file_name = argv[1];
+	FILE *cfs_file = fopen(input_file_name, "r");
+
+	CFSFile *file = malloc(sizeof(CFSFile));
+	if (file == NULL)
+	{
+		return 1;
+	}
+	read_cfs_file(cfs_file, file);
+
+	FILE *csv_file = stdout;
+	if (argc == 3)
+	{
+		csv_file = fopen(argv[2], "w");
+	}
+	write_csv(file, csv_file);
+	fclose(csv_file);
+
+	free_cfs_file(file);
+	free(file);
+}
 
 int write_csv(CFSFile *file, FILE *csv_file)
 {
