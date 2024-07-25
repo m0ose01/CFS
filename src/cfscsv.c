@@ -45,17 +45,16 @@ int write_csv(CFSFile *file, FILE *csv_file)
 	{
 		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
 		{
-			CFSDataType current_type = file->data_sections->channel_data[current_channel].data_type;
+			CFSChannelData *current_channel_data = get_channel_data(file, current_channel, current_ds);
+			CFSDSChannelHeader *current_ds_channel_header = get_ds_channel_header(file, current_channel, current_ds);
+			CFSDataType current_type = current_channel_data->data_type;
 
-			int idx = current_ds + (current_channel * DS_COUNT);
-			CFSDSChannelHeader *current_ds_channel_header = &file->data_sections->header->channel_headers[idx];
 			const float y_scale = current_ds_channel_header->y_scale;
 			const float y_offset = current_ds_channel_header->y_scale;
 			const float x_offset = current_ds_channel_header->x_offset;
 			const float x_increment = current_ds_channel_header->x_increment;
 
-			const int POINTS_COUNT = file->data_sections->channel_data[idx].data_points_count; // We must read points from the channel data itself, in case some points were not written successfully.
-			CFSChannelData *current_channel_data = &file->data_sections->channel_data[idx];
+			const int POINTS_COUNT = current_channel_data->data_points_count; // We must read points from the channel data itself, in case some points were not written successfully.
 			for (int current_point = 0; current_point < POINTS_COUNT; current_point++)
 			{
 				float current_x = (x_offset + current_point) * x_increment;

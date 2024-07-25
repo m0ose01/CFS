@@ -139,4 +139,13 @@ int read_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSCh
 int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSChannelHeader *ds_header, CFSChannelData *channel_data);
 int get_variable_size(CFSDataType type);
 
+CFSFileChannelHeader *get_file_channel_header(CFSFile *file, int channel);
+CFSDSChannelHeader *get_ds_channel_header(CFSFile *file, int channel, int data_section);
+CFSDSGeneralHeader *get_ds_general_header(CFSFile *file, int data_section);
+CFSVariableHeader *get_file_variable_header(CFSFile *file, int file_variable);
+CFSVariableHeader *get_ds_variable_header(CFSFile *file, int ds_variable);
+CFSVariable *get_file_variable(CFSFile *file, int file_variable);
+CFSVariable *get_ds_variable(CFSFile *file, int data_section, int ds_variable);
+CFSChannelData *get_channel_data(CFSFile *file, int channel, int data_section);
+
 #endif

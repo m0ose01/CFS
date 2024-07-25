@@ -358,3 +358,100 @@ void free_cfs_file(CFSFile *file)
 	free(file->data_sections);
 }
 
+CFSFileChannelHeader *get_file_channel_header(CFSFile *file, int channel)
+{
+	const int CHANNEL_COUNT = file->header->general_header->channel_count;
+	if (channel >= CHANNEL_COUNT)
+	{
+		return NULL;
+	}
+	return &file->header->channel_headers[channel];
+}
+
+CFSDSChannelHeader *get_ds_channel_header(CFSFile *file, int channel, int data_section)
+{
+	const int CHANNEL_COUNT = file->header->general_header->channel_count;
+	const int DS_COUNT = file->header->general_header->data_section_count;
+	if (channel >= CHANNEL_COUNT)
+	{
+		return NULL;
+	}
+	if (data_section >= DS_COUNT)
+	{
+		return NULL;
+	}
+	int idx = data_section + (channel * DS_COUNT);
+	return &file->data_sections->header->channel_headers[idx];
+}
+
+CFSDSGeneralHeader *get_ds_general_header(CFSFile *file, int data_section)
+{
+	const int DS_COUNT = file->header->general_header->data_section_count;
+	if (data_section >= DS_COUNT)
+	{
+		return NULL;
+	}
+	return &file->data_sections->header->general_header[data_section];
+}
+
+CFSVariableHeader *get_file_variable_header(CFSFile *file, int file_variable)
+{
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
+	if (file_variable >= FILE_VAR_COUNT)
+	{
+		return NULL;
+	}
+	return &file->header->file_variable_headers[file_variable];
+}
+
+CFSVariableHeader *get_ds_variable_header(CFSFile *file, int ds_variable)
+{
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
+	if (ds_variable >= DS_VAR_COUNT)
+	{
+		return NULL;
+	}
+	return &file->header->ds_variable_headers[ds_variable];
+}
+
+CFSVariable *get_file_variable(CFSFile *file, int file_variable)
+{
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
+	if (file_variable >= FILE_VAR_COUNT)
+	{
+		return NULL;
+	}
+	return &file->header->file_variables[file_variable];
+}
+
+CFSVariable *get_ds_variable(CFSFile *file, int data_section, int ds_variable)
+{
+	const int DS_COUNT = file->header->general_header->data_section_variable_count;
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
+	if (data_section >= DS_COUNT)
+	{
+		return NULL;
+	}
+	if (ds_variable >= DS_VAR_COUNT)
+	{
+		return NULL;
+	}
+	int idx = data_section + (ds_variable * DS_COUNT);
+	return &file->data_sections->header->ds_variables[idx];
+}
+
+CFSChannelData *get_channel_data(CFSFile *file, int channel, int data_section)
+{
+	int CHANNEL_COUNT = file->header->general_header->channel_count;
+	int DS_COUNT = file->header->general_header->data_section_count;
+	if (channel >= CHANNEL_COUNT)
+	{
+		return NULL;
+	}
+	if (data_section >= DS_COUNT)
+	{
+		return NULL;
+	}
+	int idx = data_section + (channel * DS_COUNT);
+	return &file->data_sections->channel_data[idx];
+}
