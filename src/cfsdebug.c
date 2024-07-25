@@ -45,35 +45,35 @@ void print_variable(CFSVariable *variable)
 {
 	switch (variable->data_type)
 	{
-		case INT1:
+		case type_INT1:
 			printf("Type: INT1\n");
 			printf("Variable: %i\n", *(uint8_t *)variable->data);
 		break;
-		case WRD1:
+		case type_WRD1:
 			printf("Type: WRD1\n");
 			printf("Variable: %u\n", *(int8_t *)variable->data);
 		break;
-		case INT2:
+		case type_INT2:
 			printf("Type: INT2\n");
 			printf("Variable: %i\n", *(int16_t *)variable->data);
 		break;
-		case WRD2:
+		case type_WRD2:
 			printf("Type: WRD2\n");
 			printf("Variable: %u\n", *(uint16_t *)variable->data);
 		break;
-		case INT4:
+		case type_INT4:
 			printf("Type: INT4\n");
 			printf("Variable: %i\n", *(int32_t *)variable->data);
 		break;
-		case RL4:
+		case type_RL4:
 			printf("Type: RL4\n");
 			printf("Variable: %f\n", *(float *)variable->data);
 		break;
-		case RL8:
+		case type_RL8:
 			printf("Type: RL8\n");
 			printf("Variable: %f\n", *(double *)variable->data);
 		break;
-		case LSTR:
+		case type_LSTR:
 			printf("Type: LSTR\n");
 			printf("Variable: %c\n", *(char *)variable->data);
 		break;

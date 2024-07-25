@@ -27,10 +27,10 @@ int write_csv(CFSFile *file, FILE *csv_file)
 				char current_y[32];
 				switch (current_type)
 				{
-					case INT2:
+					case type_INT2:
 						write_int2(current_channel_data->data, current_point, y_scale, y_offset, current_y);
 						break;
-					case RL8:
+					case type_RL8:
 						write_rl8(current_channel_data->data, current_point, y_scale, y_offset, current_y);
 					default:
 						continue;

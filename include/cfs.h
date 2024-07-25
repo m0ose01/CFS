@@ -6,21 +6,21 @@
 
 typedef enum
 {
-	INT1 = 0,
-	WRD1 = 1,
-	INT2 = 2,
-	WRD2 = 3,
-	INT4 = 4,
-	RL4 = 5,
-	RL8 = 6,
-	LSTR = 7,
+	type_INT1 = 0,
+	type_WRD1 = 1,
+	type_INT2 = 2,
+	type_WRD2 = 3,
+	type_INT4 = 4,
+	type_RL4 = 5,
+	type_RL8 = 6,
+	type_LSTR = 7,
 } CFSDataType;
 
 typedef enum
 {
-	EQUALSPACED = 0,
-	MATRIX = 1,
-	SUBSIDIARY = 2,
+	kind_EQUALSPACED = 0,
+	kind_MATRIX = 1,
+	kind_SUBSIDIARY = 2,
 } CFSDataKind;
 
 typedef struct

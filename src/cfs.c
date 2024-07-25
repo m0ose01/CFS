@@ -111,7 +111,7 @@ int read_variable(FILE *cfs_file, CFSVariableHeader *header, CFSVariable *variab
 {
 	fseek(cfs_file, header->offset, SEEK_CUR);
 	uint8_t variable_size = (uint8_t)get_variable_size((CFSDataType)header->type);
-	if (header->type == LSTR)
+	if (header->type == type_LSTR)
 	{
 		fread(&variable_size, sizeof(uint8_t), 1, cfs_file);
 	}
@@ -130,22 +130,22 @@ int get_variable_size(CFSDataType type)
 	int variable_size = 0;
 	switch (type)
 	{
-		case INT1:
-		case WRD1:
+		case type_INT1:
+		case type_WRD1:
 			variable_size = sizeof(int8_t);
 		break;
-		case INT2:
-		case WRD2:
+		case type_INT2:
+		case type_WRD2:
 			variable_size = sizeof(int16_t);
 		break;
-		case INT4:
-		case RL4:
+		case type_INT4:
+		case type_RL4:
 			variable_size = sizeof(float);
 		break;
-		case RL8:
+		case type_RL8:
 			variable_size = sizeof(double);
 		break;
-		case LSTR:
+		case type_LSTR:
 			variable_size = sizeof(char *);
 		break;
 	}
@@ -156,7 +156,7 @@ int read_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CFSDSCh
 {
 	switch (file_header->data_type)
 	{
-		case INT2:
+		case type_INT2:
 			return read_int2_channel_data(cfs_file, file_header, ds_header, channel_data);
 		default:
 			break;
