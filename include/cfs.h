@@ -25,11 +25,11 @@ typedef enum
 
 typedef struct
 {
-	char file_id[8];
-	char file_name[14];
+	char file_id[9];
+	char file_name[13];
 	int32_t file_size;
-	char file_creation_time[8];
-	char file_creation_date[8];
+	char file_creation_time[9];
+	char file_creation_date[9];
 	int16_t channel_count;
 	int16_t file_variable_count;
 	int16_t data_section_variable_count;
@@ -38,16 +38,16 @@ typedef struct
 	int32_t final_data_section_header_offset;
 	uint16_t data_section_count;
 	uint16_t disk_block_size_rounding;
-	char file_comment[74];
+	char file_comment[73];
 	int32_t pointer_table_offset;
 	uint8_t reserved_space[40];
 } CFSFileGeneralHeader;
 
 typedef struct
 {
-	char channel_name[22];
-	char y_axis_units[10];
-	char x_axis_units[10];
+	char channel_name[21];
+	char y_axis_units[9];
+	char x_axis_units[9];
 	uint8_t data_type;
 	uint8_t data_kind;
 	int16_t space_between_elements_bytes;
@@ -57,9 +57,9 @@ typedef struct
 // Header for EITHER file variables or data section variables.
 typedef struct
 {
-	char description[22];
+	char description[21];
 	uint16_t type;
-	char units[10];
+	char units[9];
 	int16_t offset; // Offset from the start of the data section variable area, or the file variable area.
 } CFSVariableHeader;
 

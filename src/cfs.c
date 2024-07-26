@@ -2,21 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cfs.h>
-#include <cfsdebug.h>
 #include <cfscsv.h>
 
 // NOTE: 'ds' stands for 'data section' See CFS manual for details.
+//
+
+size_t fread_string(char buffer[], size_t size, size_t count, FILE *restrict stream)
+{
+	uint8_t string_size;
+	fread(&string_size, sizeof(string_size), 1, stream);
+	buffer[string_size] = '\0';
+	return fread(buffer, size, count, stream);
+}
+
+size_t fread_char(char buffer[], size_t size, size_t count, FILE *restrict stream)
+{
+	buffer[size] = '\0';
+	return fread(buffer, size - 1, count, stream);
+}
 
 // Read contents of a CFS file header into a struct.
 void read_file_general_header(FILE *file, CFSFileGeneralHeader *header)
 {
 	// Read contents of file header into the struct one by one.
 	// This is safer and more portable than reading the header directly into a packed struct.
-	fread(&header->file_id, sizeof(header->file_id), 1, file);
-	fread(&header->file_name, sizeof(header->file_name), 1, file);
+	fread_char(header->file_id, sizeof(header->file_id), 1, file);
+	fread_string(header->file_name, sizeof(header->file_name), 1, file);
 	fread(&header->file_size, sizeof(header->file_size), 1, file);
-	fread(&header->file_creation_time, sizeof(header->file_creation_time), 1, file);
-	fread(&header->file_creation_date, sizeof(header->file_creation_date), 1, file);
+	fread_char(header->file_creation_time, sizeof(header->file_creation_time), 1, file);
+	fread_char(header->file_creation_date, sizeof(header->file_creation_date), 1, file);
 	fread(&header->channel_count, sizeof(header->channel_count), 1, file);
 	fread(&header->file_variable_count, sizeof(header->file_variable_count), 1, file);
 	fread(&header->data_section_variable_count, sizeof(header->data_section_variable_count), 1, file);
@@ -25,7 +39,7 @@ void read_file_general_header(FILE *file, CFSFileGeneralHeader *header)
 	fread(&header->final_data_section_header_offset, sizeof(header->final_data_section_header_offset), 1, file);
 	fread(&header->data_section_count, sizeof(header->data_section_count), 1, file);
 	fread(&header->disk_block_size_rounding, sizeof(header->disk_block_size_rounding), 1, file);
-	fread(&header->file_comment, sizeof(header->file_comment), 1, file);
+	fread_string(header->file_comment, sizeof(header->file_comment), 1, file);
 	fread(&header->pointer_table_offset, sizeof(header->pointer_table_offset), 1, file);
 	fread(&header->reserved_space, sizeof(header->reserved_space), 1, file);
 }
@@ -33,9 +47,9 @@ void read_file_general_header(FILE *file, CFSFileGeneralHeader *header)
 // Read contents of a CFS file channel header into a struct.
 void read_file_channel_header(FILE *file, CFSFileChannelHeader *header)
 {
-	fread(&header->channel_name, sizeof(header->channel_name), 1, file);
-	fread(&header->y_axis_units, sizeof(header->y_axis_units), 1, file);
-	fread(&header->x_axis_units, sizeof(header->x_axis_units), 1, file);
+	fread_string(header->channel_name, sizeof(header->channel_name), 1, file);
+	fread_string(header->y_axis_units, sizeof(header->y_axis_units), 1, file);
+	fread_string(header->x_axis_units, sizeof(header->x_axis_units), 1, file);
 	fread(&header->data_type, sizeof(header->data_type), 1, file);
 	fread(&header->data_kind, sizeof(header->data_kind), 1, file);
 	fread(&header->space_between_elements_bytes, sizeof(header->space_between_elements_bytes), 1, file);
@@ -44,14 +58,14 @@ void read_file_channel_header(FILE *file, CFSFileChannelHeader *header)
 
 void read_variable_header(FILE *file, CFSVariableHeader *header)
 {
-	uint8_t string_size;
-	fread(&string_size, sizeof(string_size), 1, file);
-	fread(&header->description, sizeof(header->description) - 1, 1, file);
-	header->description[string_size] = '\0';
+	// uint8_t string_size;
+	// fread(&string_size, sizeof(string_size), 1, file);
+	fread_string(header->description, sizeof(header->description), 1, file);
+	// header->description[string_size] = '\0';
 	fread(&header->type, sizeof(header->type), 1, file);
-	fread(&string_size, sizeof(string_size), 1, file);
-	fread(&header->units, sizeof(header->units) - 1, 1, file);
-	header->units[string_size] = '\0';
+	// fread(&string_size, sizeof(string_size), 1, file);
+	fread_string(header->units, sizeof(header->units), 1, file);
+	// header->units[string_size] = '\0';
 	fread(&header->offset, sizeof(header->offset), 1, file);
 }
 
