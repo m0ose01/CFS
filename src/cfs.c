@@ -11,13 +11,13 @@ size_t fread_string(char buffer[], size_t size, size_t count, FILE *restrict str
 {
 	uint8_t string_size;
 	fread(&string_size, sizeof(string_size), 1, stream);
-	buffer[string_size] = '\0';
+	buffer[string_size - 1] = '\0';
 	return fread(buffer, size, count, stream);
 }
 
 size_t fread_char(char buffer[], size_t size, size_t count, FILE *restrict stream)
 {
-	buffer[size] = '\0';
+	buffer[size - 1] = '\0';
 	return fread(buffer, size - 1, count, stream);
 }
 
