@@ -1,3 +1,10 @@
+default: bin/cfstocsv bin/cfsapi
+
+debug: bin/debug/cfstocsv bin/debug/cfsapi
+
+clean:
+	rm -f bin/cfstocsv bin/cfsapi bin/debug/cfstocsv bin/debug/cfsapi
+
 bin/cfstocsv: include/cfs.h include/cfscsv.h src/cfs.c src/cfscsv.c
 	cc -o bin/cfstocsv src/cfs.c src/cfscsv.c -Iinclude -Wall -Wextra -Wpedantic
 
