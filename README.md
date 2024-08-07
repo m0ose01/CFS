@@ -15,26 +15,44 @@ Re-implement the read-only parts of CED's public API.
 
 ## Installation
 
-1. Clone this repository:
+### Build from source
 
+Ensure CMake version 3.22 or later is installed.
+
+#### Unix-like systems
+
+```bash
+git clone https://github.com/m0ose01/cfs.git && cd cfs
+mkdir build && cd build
+
+cmake ..
+cmake --build .
 ```
-git clone https://github.com/m0ose01/CFS.git
-```
 
-2. Execute `make` to build the binary.
-
-If you are using Windows, you will need to install [Make for Windows](https://gnuwin32.sourceforge.net/packages/make.htm).
+This will produce 2 binary files:
+- `libcfsapi.so`, a shared library containing a number of the CFS routines.
+- `cfstocsv`, a command line program to convert CFS files to CSV format.
 
 ## Usage
 
-In the clone directory, execute:
+cfstocsv takes a CFS file as its first argument, and emits a csv file, containing the channel data for each data section.
 
 ```
-./bin/cfs <cfs file> <output file>
+./cfstocsv <filename> <output>
 ```
 
-The output file is currently a CSV file, which contains the channel data for each data section.
-In future, this functionality will be turned into a standalone program.
+If the second argument is omitted, output goes to stdout.
+
+`libcfsapi.so` can be used as a drop-in replacement for the CFS32.dll file provided by CED in some cases.
+The following functions from the CFS library have been implemented.
+
+- OpenCFSFile
+- CloseCFSFile
+- GetGenInfo
+- GetFileInfo
+- GetFileChan
+- GetDSChan
+- GetChanData
 
 This project is currently a work-in-progress, and should not yet be used in a real research environment.
 Currently, only reading of 32-bit 'equalspaced' integer channel data is supported/tested.
