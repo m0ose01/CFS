@@ -5,6 +5,8 @@ project(
 	LANGUAGES C
 	)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_executable(cfstocsv src/cfscsv.c src/cfs.c)
 add_library(cfsapi SHARED src/cfsapi.c src/cfs.c)
 
