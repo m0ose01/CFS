@@ -4,7 +4,6 @@
 #include <cfs.h>
 
 // NOTE: 'ds' stands for 'data section' See CFS manual for details.
-//
 
 size_t fread_string(char buffer[], size_t size, size_t count, FILE *restrict stream)
 {
@@ -57,14 +56,9 @@ void read_file_channel_header(FILE *file, CFSFileChannelHeader *header)
 
 void read_variable_header(FILE *file, CFSVariableHeader *header)
 {
-	// uint8_t string_size;
-	// fread(&string_size, sizeof(string_size), 1, file);
 	fread_string(header->description, sizeof(header->description), 1, file);
-	// header->description[string_size] = '\0';
 	fread(&header->type, sizeof(header->type), 1, file);
-	// fread(&string_size, sizeof(string_size), 1, file);
 	fread_string(header->units, sizeof(header->units), 1, file);
-	// header->units[string_size] = '\0';
 	fread(&header->offset, sizeof(header->offset), 1, file);
 }
 
