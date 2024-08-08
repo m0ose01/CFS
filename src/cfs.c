@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cfs.h>
-#include <cfscsv.h>
 
 // NOTE: 'ds' stands for 'data section' See CFS manual for details.
 //
