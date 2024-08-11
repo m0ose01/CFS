@@ -6,6 +6,7 @@ project(
 	)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_executable(cfstocsv src/cfstocsv.c src/cfs.c)
 add_library(cfsapi SHARED src/cfsapi.c src/cfs.c)
