@@ -148,20 +148,21 @@ int read_int2_channel_data(FILE *cfs_file, CFSFileChannelHeader *file_header, CF
 	{
 		return -1;
 	}
+	int points_read = 0;
 	if (SPACE_BETWEEN_POINTS == VARIABLE_SIZE)
 	{
-		int points_read = fread(channel_data->data, VARIABLE_SIZE, POINTS_COUNT, cfs_file);
-		channel_data->data_points_count = points_read;
-		channel_data->data_type = file_header->data_type;
+		points_read = fread(channel_data->data, VARIABLE_SIZE, POINTS_COUNT, cfs_file);
 	}
 	else
 	{
 		for (int current_point = 0; current_point < POINTS_COUNT; current_point++) // Note: I currently have no file to test this path
 		{
-			fread(&((int16_t *)(channel_data->data))[current_point], VARIABLE_SIZE, 1, cfs_file);
+			points_read += fread(&((int16_t *)(channel_data->data))[current_point], VARIABLE_SIZE, 1, cfs_file);
 			fseek(cfs_file, SPACE_BETWEEN_POINTS - VARIABLE_SIZE, SEEK_CUR);
 		}
 	}
+	channel_data->data_points_count = points_read;
+	channel_data->data_type = file_header->data_type;
 	return 0;
 }
 
