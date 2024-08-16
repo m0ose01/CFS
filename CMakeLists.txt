@@ -9,6 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_executable(cfstocsv src/cfstocsv.c src/cfs.c)
 add_library(cfsapi SHARED src/cfsapi.c src/cfs.c)
+add_library(cfsapi_static STATIC src/cfsapi.c src/cfs.c)
 
 get_property(target_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
 
@@ -22,3 +23,4 @@ endforeach()
 
 target_include_directories(cfstocsv PUBLIC include)
 target_include_directories(cfsapi PUBLIC include)
+target_include_directories(cfsapi_static PUBLIC include)
