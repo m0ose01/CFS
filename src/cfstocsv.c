@@ -15,6 +15,11 @@ int main(int argc, char *argv[])
 	}
 	char *input_file_name = argv[1];
 	FILE *cfs_file = fopen(input_file_name, "r");
+	if (cfs_file == NULL)
+	{
+		printf("ERROR: Failed to open file. Check whether filename is correct.\n");
+		return 1;
+	}
 
 	CFSFile *file = malloc(sizeof(CFSFile));
 	if (file == NULL)
@@ -27,6 +32,14 @@ int main(int argc, char *argv[])
 	if (argc == 3)
 	{
 		csv_file = fopen(argv[2], "w");
+		if (csv_file == NULL)
+		{
+			printf("ERROR: Failed to open CSV file for writing.\n");
+			fclose(cfs_file);
+			free_cfs_file(file);
+			free(file);
+			return 1;
+		}
 	}
 	write_csv(file, csv_file);
 	fclose(csv_file);
