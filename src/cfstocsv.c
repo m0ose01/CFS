@@ -63,7 +63,7 @@ int write_csv(CFSFile *file, FILE *csv_file)
 			CFSDataType current_type = current_channel_data->data_type;
 
 			const float y_scale = current_ds_channel_header->y_scale;
-			const float y_offset = current_ds_channel_header->y_scale;
+			const float y_offset = current_ds_channel_header->y_offset;
 			const float x_offset = current_ds_channel_header->x_offset;
 			const float x_increment = current_ds_channel_header->x_increment;
 
