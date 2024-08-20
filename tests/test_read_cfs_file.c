@@ -17,4 +17,5 @@ int main(int argc, char *argv[])
 	}
 	CFSFile cfs_file;
 	int success = read_cfs_file(input_file, &cfs_file);
+  return success;
 }
