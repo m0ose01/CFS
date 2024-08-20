@@ -3,15 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool assert_str_equal(char *input, char *correct)
-{
-	if (strncmp(input, correct, strlen(correct)) != 0)
-	{
-		printf("Error: expected '%s', got '%s'\n", correct, input);
-		return false;
-	}
-	return true;
-}
+#include "test.h"
 
 int main(int argc, char *argv[])
 {
