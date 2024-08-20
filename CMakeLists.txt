@@ -24,3 +24,6 @@ endforeach()
 target_include_directories(cfstocsv PUBLIC include)
 target_include_directories(cfsapi PUBLIC include)
 target_include_directories(cfsapi_static PUBLIC include)
+
+enable_testing()
+add_subdirectory("tests")
