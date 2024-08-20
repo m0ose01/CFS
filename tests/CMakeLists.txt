@@ -14,5 +14,5 @@ foreach(test description IN ZIP_LISTS tests descriptions)
 	target_include_directories(${test} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 	target_link_libraries(${test} cfsapi_static)
 
-	add_test(NAME "${description}" COMMAND test_read_cfs_file "${CMAKE_CURRENT_SOURCE_DIR}/test_data/test_data.cfs")
+	add_test(NAME "${description}" COMMAND "${test}" "${CMAKE_CURRENT_SOURCE_DIR}/test_data/test_data.cfs")
 endforeach()
