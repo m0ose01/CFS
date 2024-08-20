@@ -1,6 +1,17 @@
 #include <cfs.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+bool assert_str_equal(char *input, char *correct)
+{
+	if (strncmp(input, correct, strlen(correct)) != 0)
+	{
+		printf("Error: expected '%s', got '%s'\n", correct, input);
+		return false;
+	}
+	return true;
+}
 
 int main(int argc, char *argv[])
 {
@@ -23,42 +34,37 @@ int main(int argc, char *argv[])
 	CFSFileChannelHeader channel_header_1;
 	read_file_channel_header(input_file, &channel_header_1);
 
-	if (strncmp(channel_header_1.channel_name, "ECG", strlen("ECG")) != 0)
+	if (!assert_str_equal(channel_header_1.channel_name, "ECG"))
 	{
-		printf("ERROR: Channel 0 header name not read correctly.");
 		return 3;
 	}
 
-	if (strncmp(channel_header_1.y_axis_units, "mV", strlen("mV")) != 0)
+	if (!assert_str_equal(channel_header_1.y_axis_units, "mV"))
 	{
-		printf("ERROR: Channel 0 y-axis units read incorrectly.");
 		return 4;
 	}
 
-	if (strncmp(channel_header_1.x_axis_units, "s", strlen("s")) != 0)
+	if (!assert_str_equal(channel_header_1.x_axis_units, "s"))
 	{
-		printf("ERROR: Channel 0 x-axis units read incorrectly.");
 		return 5;
 	}
 
 	CFSFileChannelHeader channel_header_2;
 	read_file_channel_header(input_file, &channel_header_2);
 
-	if (strncmp(channel_header_2.channel_name, "Blood Pressure", strlen("Blood Pressure")) != 0)
+	if (!assert_str_equal(channel_header_2.channel_name, "Blood Pressure"))
 	{
-		printf("ERROR: Channel 1 header name not read correctly.");
 		return 3;
 	}
 
-	if (strncmp(channel_header_2.y_axis_units, "Pa", strlen("Pa")) != 0)
+	if (!assert_str_equal(channel_header_2.y_axis_units, "Pa"))
 	{
 		printf("ERROR: Channel 1 y-axis units read incorrectly.");
 		return 4;
 	}
 
-	if (strncmp(channel_header_2.x_axis_units, "s", strlen("s")) != 0)
+	if (!assert_str_equal(channel_header_2.x_axis_units, "s"))
 	{
-		printf("ERROR: Channel 1 x-axis units read incorrectly.");
 		return 5;
 	}
 
