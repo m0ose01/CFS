@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 	CFSFile cfs_file;
-	int success = read_cfs_file(input_file, &cfs_file);
 
 	CFSFileGeneralHeader *general_header = cfs_file.header->general_header;
+	read_file_general_header(input_file, general_header);
 	if (strncmp(general_header->file_id, "CEDFILE\"", sizeof(general_header->file_id) - 1) != 0)
 	{
 		printf("ERROR: File not correctly read as CFS File.\n");
