@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 		printf("Usage: cfs.c <filename> <output>\n");
 	}
 	char *input_file_name = argv[1];
-	FILE *cfs_file = fopen(input_file_name, "r");
+	FILE *cfs_file = fopen(input_file_name, "rb");
 	if (cfs_file == NULL)
 	{
 		printf("ERROR: Failed to open file. Check whether filename is correct.\n");

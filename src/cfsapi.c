@@ -67,7 +67,7 @@ cfs_short OpenCFSFile(TpStr fName, cfs_short enableWr, cfs_short memTable)
 	{
 		return -99;
 	}
-	FILE *file = fopen(fName, "r");
+	FILE *file = fopen(fName, "rb");
 	if (file == NULL)
 	{
 		return -12;
