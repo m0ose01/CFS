@@ -26,7 +26,12 @@ int main(int argc, char *argv[])
 	{
 		return 1;
 	}
-	read_cfs_file(cfs_file, file);
+	int success = read_cfs_file(cfs_file, file);
+	if (success != 0)
+	{
+		printf("Failed to read CFS file.\n");
+		return 1;
+	}
 
 	FILE *csv_file = stdout;
 	if (argc == 3)

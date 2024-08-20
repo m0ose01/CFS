@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <cfs.h>
 
 // NOTE: 'ds' stands for 'data section' See CFS manual for details.
@@ -181,6 +182,12 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 	}
 
 	read_file_general_header(cfs_file, file->header->general_header);
+
+	if (strncmp(file->header->general_header->file_id, "CEDFILE\"", sizeof(file->header->general_header->file_id) - 1) != 0)
+	{
+		printf("File is not a valid CFS v2 file.\n");
+		return -2;
+	}
 	
 	const int CHANNEL_COUNT = file->header->general_header->channel_count;
 	const int DS_COUNT = file->header->general_header->data_section_count;
