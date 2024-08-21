@@ -17,21 +17,23 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
-	CFSFileGeneralHeader general_header;
-	read_file_general_header(input_file, &general_header);
-	if (strncmp(general_header.file_id, "CEDFILE\"", sizeof(general_header.file_id) - 1) != 0)
+	CFSFile cfs_file;
+	read_cfs_file(input_file, &cfs_file);
+
+	CFSFileGeneralHeader *general_header = cfs_file.header->general_header;
+	if (strncmp(general_header->file_id, "CEDFILE\"", sizeof(general_header->file_id) - 1) != 0)
 	{
 		printf("ERROR: File not correctly read as CFS File.\n");
 		return 3;
 	}
 
-	if (general_header.channel_count != 2)
+	if (general_header->channel_count != 2)
 	{
 		printf("ERROR: Incorrect number of channels read.\n");
 		return 4;
 	}
 
-	if (general_header.data_section_count != 3)
+	if (general_header->data_section_count != 3)
 	{
 		printf("ERROR: Incorrect number of data_sections read.\n");
 		return 5;
