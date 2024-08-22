@@ -1,7 +1,7 @@
 list(APPEND tests
-	test_read_cfs_file
-	test_get_general_header
-	test_get_file_channel_header
+	read_cfs_file
+	get_general_header
+	get_file_channel_header
 	)
 
 list(APPEND descriptions
