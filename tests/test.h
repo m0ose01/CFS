@@ -12,3 +12,12 @@ static inline bool assert_str_equal(char *input, char *correct)
 	return true;
 }
 
+static inline bool assert_int_equal(int input, int correct)
+{
+	if (input != correct)
+	{
+		printf("Error: expected %i, got %i\n", correct, input);
+		return false;
+	}
+	return true;
+}

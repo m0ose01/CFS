@@ -2,12 +2,14 @@ list(APPEND tests
 	read_cfs_file
 	get_general_header
 	get_file_channel_header
+	get_ds_general_header
 	)
 
 list(APPEND descriptions
 	"Read CFS file."
 	"Get General File Info"
 	"Get general header for channels 0 and 1"
+	"Get DS general header for ds 0"
 	)
 
 foreach(test description IN ZIP_LISTS tests descriptions)
