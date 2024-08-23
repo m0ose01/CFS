@@ -3,6 +3,7 @@ list(APPEND tests
 	get_general_header
 	get_file_channel_header
 	get_ds_general_header
+	get_channel_data
 	)
 
 list(APPEND descriptions
@@ -10,6 +11,7 @@ list(APPEND descriptions
 	"Get General File Info"
 	"Get general header for channels 0 and 1"
 	"Get DS general header for ds 0"
+	"Get channel data."
 	)
 
 foreach(test description IN ZIP_LISTS tests descriptions)
