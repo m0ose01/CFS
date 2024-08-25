@@ -10,54 +10,6 @@
 int cfs_files_count = 0;
 CFSFile *cfs_files[MAX_CFS_FILES];
 
-int main(int argc, char *argv[])
-{
-	if (argc < 2)
-	{
-		printf("Usage: %s, <filename>\n", argv[0]);
-		return -1;
-	}
-
-	cfs_short handle = OpenCFSFile(argv[1], 0, 1);
-
-	char *time = malloc(sizeof(char) * 256);
-	char *date = malloc(sizeof(char) * 256);
-	char *comment = malloc(sizeof(char) * 256);
-	GetGenInfo(handle, time, date, comment);
-
-
-	cfs_short channels;
-	cfs_short fileVars;
-	cfs_short dsVars;
-	WORD dataSections;
-	GetFileInfo(handle, &channels, &fileVars, &dsVars, &dataSections);
-	printf("%i, %i, %i, %i\n", channels, fileVars, dsVars, dataSections);
-
-	
-	char *chanName = malloc(sizeof(char) * 256);
-	char *yUnits = malloc(sizeof(char) * 256);
-	char *xUnits = malloc(sizeof(char) * 256);
-	char dataType;
-	char dataKind;
-	cfs_short spacing;
-	cfs_short other;
-
-	GetFileChan(handle, 0, chanName, yUnits, xUnits, &dataType, &dataKind, &spacing, &other);
-	printf("%s, %s, %s, %i, %i, %i, %i\n", chanName, yUnits, xUnits, dataType, dataKind, spacing, other);
-
-	cfs_long chOffset;
-	cfs_long points;
-	float yScale;
-	float yOffset;
-	float xScale;
-	float xOffset;
-
-	GetDSChan(handle, 0, 2, &chOffset, &points, &yScale, &yOffset, &xScale, &xOffset);
-	printf("%i, %i, %f, %f, %f, %f\n", chOffset, points, yScale, yOffset, xScale, xOffset);
-
-	CloseCFSFile(handle);
-}
-
 cfs_short OpenCFSFile(TpStr fName, cfs_short enableWr, cfs_short memTable)
 {
 	(void) memTable; // Avoids compiler warning. memTable always used in this implementation, as memory usage
