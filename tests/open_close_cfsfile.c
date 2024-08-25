@@ -11,13 +11,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	char *input_file_name = argv[1];
-	FILE *input_file = fopen(input_file_name, "rb");
-	if (input_file == NULL)
-	{
-		printf("ERROR: File %s does not exist.\n", input_file_name);
-		return 2;
-	}
-
 	cfs_short handle = OpenCFSFile(input_file_name, 0, 1);
 	if (handle < 0)
 	{
