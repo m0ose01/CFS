@@ -78,7 +78,7 @@ cfs_short OpenCFSFile(TpStr fName, cfs_short enableWr, cfs_short memTable)
 		return -8;
 	}
 	cfs_short handle = cfs_files_count;
-	CFSFile *cfs_file = malloc(sizeof(CFSFile *));
+	CFSFile *cfs_file = malloc(sizeof(CFSFile));
 	if (cfs_file == NULL)
 	{
 		return -8;
