@@ -191,8 +191,8 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 	
 	const int CHANNEL_COUNT = file->header->general_header->channel_count;
 	const int DS_COUNT = file->header->general_header->data_section_count;
-	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count + 1; // We add +1 as there is an extra 'system file variable'
-	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count + 1; // See above
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
 	const int POINTER_TABLE_OFFSET = file->header->general_header->pointer_table_offset;
 
 	file->header->channel_headers = malloc(sizeof(CFSFileChannelHeader) * CHANNEL_COUNT);
@@ -332,8 +332,8 @@ void free_cfs_file(CFSFile *file)
 {
 	const int CHANNEL_COUNT = file->header->general_header->channel_count;
 	const int DS_COUNT = file->header->general_header->data_section_count;
-	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count + 1; // We add +1 as there is an extra 'system file variable'
-	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count + 1; // See above
+	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
+	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
 
 	free(file->header->general_header);
 	free(file->header->channel_headers);
