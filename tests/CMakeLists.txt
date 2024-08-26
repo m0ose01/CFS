@@ -5,6 +5,7 @@ list(APPEND tests
 	get_ds_general_header
 	get_channel_data
 	open_close_cfsfile
+	get_file_variable
 	)
 
 list(APPEND descriptions
@@ -14,6 +15,7 @@ list(APPEND descriptions
 	"Get DS general header for ds 0"
 	"Get channel data."
 	"Open and close a CFS file."
+	"Get file variable 0"
 	)
 
 foreach(test description IN ZIP_LISTS tests descriptions)
