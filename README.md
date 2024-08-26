@@ -1,5 +1,7 @@
 # README
 
+![CI Status](https://github.com/m0ose01/CFS/actions/workflows/ci.yml/badge.svg?branch=main)
+
 ## About
 
 The Cambridge Electronic Design File System (CFS) is the file format used by the Signal Software Suite to record electrophysiological data, such as data from Transcranial Magnetic Stimulation experiments.
