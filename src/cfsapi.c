@@ -51,7 +51,7 @@ cfs_short OpenCFSFile(TpStr fName, cfs_short enableWr, cfs_short memTable)
 cfs_short CloseCFSFile(cfs_short handle)
 {
 	CFSFile *current_cfs_file = cfs_files[handle];
-	free_cfs_file(current_cfs_file);
+	// free_cfs_file(current_cfs_file);
 	free(current_cfs_file);
 	return 0;
 }
