@@ -352,27 +352,27 @@ void free_cfs_file(CFSFile *file)
 
 	free(file->data_sections->header->general_header);
 	free(file->data_sections->header->channel_headers);
-	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
-	{
-		for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
-		{
-			int idx = current_ds + (current_ds_var * DS_COUNT);
-			free(file->data_sections->header->ds_variables[idx].data);
-		}
-	}
-	free(file->data_sections->header->ds_variables);
-	free(file->data_sections->header);
-
-	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
-	{
-		for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
-		{
-			int idx = current_ds + (current_channel * DS_COUNT);
-			free(file->data_sections->channel_data[idx].data);
-		}
-	}
-	free(file->data_sections->channel_data);
-	free(file->data_sections);
+	// for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
+	// {
+	// 	for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
+	// 	{
+	// 		int idx = current_ds + (current_ds_var * DS_COUNT);
+	// 		free(file->data_sections->header->ds_variables[idx].data);
+	// 	}
+	// }
+	// free(file->data_sections->header->ds_variables);
+	// free(file->data_sections->header);
+	//
+	// for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
+	// {
+	// 	for (int current_channel = 0; current_channel < CHANNEL_COUNT; current_channel++)
+	// 	{
+	// 		int idx = current_ds + (current_channel * DS_COUNT);
+	// 		free(file->data_sections->channel_data[idx].data);
+	// 	}
+	// }
+	// free(file->data_sections->channel_data);
+	// free(file->data_sections);
 }
 
 CFSFileChannelHeader *get_file_channel_header(CFSFile *file, int channel)
