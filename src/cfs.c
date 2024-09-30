@@ -337,21 +337,21 @@ void free_cfs_file(CFSFile *file)
 	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
 	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
 
-	free(file->header->general_header);
-	free(file->header->channel_headers);
-	free(file->header->file_variable_headers);
-	free(file->header->ds_variable_headers);
+	// free(file->header->general_header);
+	// free(file->header->channel_headers);
+	// free(file->header->file_variable_headers);
+	// free(file->header->ds_variable_headers);
 	for (int current_filevar = 0; current_filevar < FILE_VAR_COUNT; current_filevar++)
 	{
 		free(file->header->file_variables[current_filevar].data);
 	}
-	// free(file->header->file_variables);
-	// free(file->header);
-	//
-	// free(file->pointer_table);
-	//
-	// free(file->data_sections->header->general_header);
-	// free(file->data_sections->header->channel_headers);
+	free(file->header->file_variables);
+	free(file->header);
+
+	free(file->pointer_table);
+
+	free(file->data_sections->header->general_header);
+	free(file->data_sections->header->channel_headers);
 	for (int current_ds = 0; current_ds < DS_COUNT; current_ds++)
 	{
 		for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
