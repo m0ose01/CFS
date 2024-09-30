@@ -192,7 +192,9 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 	const int CHANNEL_COUNT = file->header->general_header->channel_count;
 	const int DS_COUNT = file->header->general_header->data_section_count;
 	const int DS_VAR_COUNT = file->header->general_header->data_section_variable_count;
+	const int DS_VAR_HEADER_COUNT = DS_VAR_COUNT + 1; // need to account for 'system ds/file var' - see CFS manual
 	const int FILE_VAR_COUNT = file->header->general_header->file_variable_count;
+	const int FILE_VAR_HEADER_COUNT = FILE_VAR_COUNT + 1; // same as above
 	const int POINTER_TABLE_OFFSET = file->header->general_header->pointer_table_offset;
 
 	file->header->channel_headers = malloc(sizeof(CFSFileChannelHeader) * CHANNEL_COUNT);
@@ -206,24 +208,24 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 		read_file_channel_header(cfs_file, &file->header->channel_headers[current_channel]);
 	}
 
-	file->header->file_variable_headers = malloc(sizeof(CFSVariableHeader) * FILE_VAR_COUNT);
+	file->header->file_variable_headers = malloc(sizeof(CFSVariableHeader) * FILE_VAR_HEADER_COUNT);
 	if (file->header->file_variable_headers == NULL)
 	{
 		return -1;
 	}
 
-	for (int current_file_var = 0; current_file_var < FILE_VAR_COUNT; current_file_var++)
+	for (int current_file_var = 0; current_file_var < FILE_VAR_HEADER_COUNT; current_file_var++)
 	{
 		read_variable_header(cfs_file, &file->header->file_variable_headers[current_file_var]);
 	}
 
-	file->header->ds_variable_headers = malloc(sizeof(CFSVariableHeader) * DS_VAR_COUNT);
+	file->header->ds_variable_headers = malloc(sizeof(CFSVariableHeader) * DS_VAR_HEADER_COUNT);
 	if (file->header->ds_variable_headers == NULL)
 	{
 		return -1;
 	}
 
-	for (int current_ds_var = 0; current_ds_var < DS_VAR_COUNT; current_ds_var++)
+	for (int current_ds_var = 0; current_ds_var < DS_VAR_HEADER_COUNT; current_ds_var++)
 	{
 		read_variable_header(cfs_file, &file->header->ds_variable_headers[current_ds_var]);
 	}

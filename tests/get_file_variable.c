@@ -22,11 +22,24 @@ int main(int argc, char *argv[])
 	}
 
 	CFSFile cfs_file;
-	read_cfs_file(input_file, &cfs_file);
+	int err = read_cfs_file(input_file, &cfs_file);
+	if (err != 0)
+	{
+		printf("Error reading CFS file.\n");
+		return 3;
+	}
 
 	CFSVariable *file_variable_0 = get_file_variable(&cfs_file, 0);
+	if (file_variable_0 == NULL)
+	{
+		printf("Error getting file variable.\n");
+		return 4;
+	}
 
 	int16_t file_variable_0_value = *(int16_t *)file_variable_0->data;
 
-	assert_int_equal(file_variable_0_value, 210);
+	if (assert_int_equal(file_variable_0_value, 210) != true)
+	{
+		return 5;
+	}
 }
