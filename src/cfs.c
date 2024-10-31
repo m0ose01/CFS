@@ -10,7 +10,8 @@ size_t fread_string(char buffer[], size_t size, size_t count, FILE *restrict str
 {
 	uint8_t string_size;
 	fread(&string_size, sizeof(string_size), 1, stream);
-	buffer[string_size - 1] = '\0';
+	// Zero the whole buffer to ensure null termination.
+	memset(buffer, 0, size);
 	return fread(buffer, size, count, stream);
 }
 

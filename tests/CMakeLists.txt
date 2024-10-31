@@ -1,3 +1,6 @@
+include(CTest)
+find_program( MEMORYCHECK_COMMAND valgrind )
+set( MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full" )
 list(APPEND tests
 	read_cfs_file
 	get_general_header
