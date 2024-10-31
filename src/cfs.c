@@ -10,7 +10,8 @@ size_t fread_string(char buffer[], size_t size, size_t count, FILE *restrict str
 {
 	uint8_t string_size;
 	fread(&string_size, sizeof(string_size), 1, stream);
-	buffer[string_size - 1] = '\0';
+	// Zero the whole buffer to ensure null termination.
+	memset(buffer, 0, size);
 	return fread(buffer, size, count, stream);
 }
 
@@ -340,7 +341,7 @@ void free_cfs_file(CFSFile *file)
 	free(file->header->general_header);
 	free(file->header->channel_headers);
 	free(file->header->file_variable_headers);
-	// free(file->header->ds_variable_headers);
+	free(file->header->ds_variable_headers);
 	for (int current_filevar = 0; current_filevar < FILE_VAR_COUNT; current_filevar++)
 	{
 		free(file->header->file_variables[current_filevar].data);
