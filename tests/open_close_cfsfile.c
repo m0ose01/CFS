@@ -4,6 +4,7 @@
 #include <string.h>
 
 #ifdef _WIN32
+#include <crtdbg.h>
 #define DETECT_HEAP_CORRUPTION _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF)
 #else
 #define DETECT_HEAP_CORRUPTION (void)0
