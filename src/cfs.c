@@ -227,7 +227,8 @@ int read_cfs_file(FILE *cfs_file, CFSFile *file)
 
 	for (int current_ds_var = 0; current_ds_var < DS_VAR_HEADER_COUNT; current_ds_var++)
 	{
-		read_variable_header(cfs_file, &file->header->ds_variable_headers[current_ds_var]);
+		fseek(cfs_file, sizeof(CFSVariableHeader), SEEK_CUR);
+		// read_variable_header(cfs_file, &file->header->ds_variable_headers[current_ds_var]);
 	}
 
 	file->header->file_variables = malloc(sizeof(CFSVariable) * FILE_VAR_COUNT);
@@ -340,7 +341,7 @@ void free_cfs_file(CFSFile *file)
 	free(file->header->general_header);
 	free(file->header->channel_headers);
 	free(file->header->file_variable_headers);
-	// free(file->header->ds_variable_headers);
+	free(file->header->ds_variable_headers);
 	for (int current_filevar = 0; current_filevar < FILE_VAR_COUNT; current_filevar++)
 	{
 		free(file->header->file_variables[current_filevar].data);
