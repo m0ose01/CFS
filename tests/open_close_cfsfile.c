@@ -3,8 +3,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define DETECT_HEAP_CORRUPTION _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF)
+#else
+#define DETECT_HEAP_CORRUPTION (void)0
+#endif
+
 int main(int argc, char *argv[])
 {
+	DETECT_HEAP_CORRUPTION;
 	if (argc < 2)
 	{
 		printf("ERROR: File not supplied as argument.\n");
