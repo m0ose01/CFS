@@ -157,3 +157,23 @@ void GetVarDesc(cfs_short handle, cfs_short varNo, cfs_short varKind, TpShort va
 	memcpy(&current_variable_header->units, units, sizeof(current_variable_header->units));
 	memcpy(&current_variable_header->description, about, sizeof(current_variable_header->description));
 }
+
+// Get the value of a file or data section variable.
+void GetVarVal(cfs_short handle, cfs_short varNo, cfs_short varKind, WORD dataSect, TpVoid varADS)
+{
+	CFSFile *current_cfs_file = cfs_files[handle];
+	CFSVariable *current_variable;
+	if (varKind == FILEVAR)
+	{	
+		current_variable = get_file_variable(current_cfs_file, varNo);
+	}
+	else if (varKind == DSVAR)
+	{
+		current_variable = get_ds_variable(current_cfs_file, dataSect, varNo);
+	}
+	else
+	{
+		current_variable = NULL;
+	}
+	*varADS = current_variable->data;
+}
