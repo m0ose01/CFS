@@ -133,3 +133,27 @@ WORD GetChanData(cfs_short handle, cfs_short channel, WORD dataSect, cfs_long po
 
 	return points_to_transfer;
 }
+
+// Get the description of a file or data section variable
+void GetVarDesc(cfs_short handle, cfs_short varNo, cfs_short varKind, TpShort varSize, TpDType varType, TpStr units, TpStr about)
+{
+	CFSFile *current_cfs_file = cfs_files[handle];
+	CFSVariableHeader *current_variable_header;
+	if (varKind == FILEVAR)
+	{
+		current_variable_header = get_file_variable_header(current_cfs_file, varNo);
+	}
+	else if (varKind == DSVAR)
+	{
+		current_variable_header = get_ds_variable_header(current_cfs_file, varNo);
+	}
+	else
+	{
+		current_variable_header = NULL;
+	}
+
+	*varSize = get_variable_size(current_variable_header->type);
+	memcpy(&current_variable_header->type, varType, sizeof(current_variable_header->type));
+	memcpy(&current_variable_header->units, units, sizeof(current_variable_header->units));
+	memcpy(&current_variable_header->description, about, sizeof(current_variable_header->description));
+}
