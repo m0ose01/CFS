@@ -10,6 +10,7 @@ list(APPEND tests
 	open_close_cfsfile
 	get_file_variable
 	GetVarVal
+	GetVarDesc
 	)
 
 list(APPEND descriptions
@@ -21,6 +22,7 @@ list(APPEND descriptions
 	"Open and close a CFS file."
 	"Get file variable 0"
 	"Get file variable 0 (cfsapi)"
+	"Get file variable 0 description"
 	)
 
 foreach(test description IN ZIP_LISTS tests descriptions)

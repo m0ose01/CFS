@@ -153,9 +153,9 @@ void GetVarDesc(cfs_short handle, cfs_short varNo, cfs_short varKind, TpShort va
 	}
 
 	*varSize = get_variable_size(current_variable_header->type);
-	memcpy(&current_variable_header->type, varType, sizeof(current_variable_header->type));
-	memcpy(&current_variable_header->units, units, sizeof(current_variable_header->units));
-	memcpy(&current_variable_header->description, about, sizeof(current_variable_header->description));
+	*varType = current_variable_header->type;
+	memcpy(units, &current_variable_header->units, sizeof(current_variable_header->units));
+	memcpy(about, &current_variable_header->description, sizeof(current_variable_header->description));
 }
 
 // Get the value of a file or data section variable.
