@@ -9,6 +9,7 @@ list(APPEND tests
 	get_channel_data
 	open_close_cfsfile
 	get_file_variable
+	GetVarVal
 	)
 
 list(APPEND descriptions
@@ -19,6 +20,7 @@ list(APPEND descriptions
 	"Get channel data."
 	"Open and close a CFS file."
 	"Get file variable 0"
+	"Get file variable 0 (cfsapi)"
 	)
 
 foreach(test description IN ZIP_LISTS tests descriptions)

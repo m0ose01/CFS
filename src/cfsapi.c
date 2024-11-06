@@ -175,5 +175,5 @@ void GetVarVal(cfs_short handle, cfs_short varNo, cfs_short varKind, WORD dataSe
 	{
 		current_variable = NULL;
 	}
-	*varADS = current_variable->data;
+	memcpy(varADS, current_variable->data, get_variable_size(current_variable->data_type));
 }
