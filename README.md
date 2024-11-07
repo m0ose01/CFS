@@ -11,6 +11,9 @@ However, this library only compiles on Windows.
 This library is an attempt to reimplement part of CED's CFS library using only platform-agnostic code compliant with the C standard.
 Some outdated features will be dropped, such as support for MS-DOS, or near/far pointers for 16-bit segmented memory architectures.
 
+This library is intended for programmers who would like to add support for reading CED CFS files to a language, e.g., using the language's FFI.
+If you want a user-friendly way to read CFS files, I recommend the python wrapper for this project, [pythonCFS](https://github.com/m0ose01/pythonCFS), which can be easily installed using pip.
+
 ## Goals 
 
 Re-implement the read-only parts of CED's public API.
