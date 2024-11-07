@@ -55,6 +55,8 @@ The following functions from the CFS library have been implemented.
 - GetFileChan
 - GetDSChan
 - GetChanData
+- GetVarDesc
+- GetVarVal
 
 This project is currently a work-in-progress, and should not yet be used in a real research environment.
 Currently, only reading of 32-bit 'equalspaced' integer channel data is supported/tested.
